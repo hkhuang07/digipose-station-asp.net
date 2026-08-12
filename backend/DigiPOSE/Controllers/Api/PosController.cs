@@ -466,6 +466,7 @@ namespace DigiPOSE.Controllers.Api
             var completedOrders = await _context.Orders.AsNoTracking()
                 .Include(o => o.OrderDetails!)
                 .Include(o => o.PaymentMethod)
+                .Include(o => o.Customer!).ThenInclude(c => c.CustomeType)
                 .Where(o => (o.TenantId == tenantId || tenantId == 0) && o.StatusId != 1 && o.StatusId != 12
                     && o.CreatedAt >= startRange && o.CreatedAt <= endRange)
                 .ToListAsync();
@@ -499,6 +500,13 @@ namespace DigiPOSE.Controllers.Api
             var paymentBreakdown = completedOrders
                 .GroupBy(o => o.PaymentMethod?.MethodName ?? "Cash / Other")
                 .Select(g => new { Method = g.Key, Revenue = g.Sum(o => o.TotalAmount), Count = g.Count() })
+                .OrderByDescending(x => x.Revenue)
+                .ToList();
+
+            // 3.1 Customer type breakdown (Pie Chart for Walk-in vs Corporate / B2B)
+            var customerTypeBreakdown = completedOrders
+                .GroupBy(o => o.Customer != null && o.Customer.CustomeType != null ? o.Customer.CustomeType.TypeName : (o.Customer != null ? (o.Customer.CustomeTypeId == 3 ? "Corporate / B2B" : "Registered Member") : "Walk-in Consumer"))
+                .Select(g => new { CustomerType = g.Key ?? "Walk-in Consumer", Count = g.Count(), Revenue = g.Sum(o => o.TotalAmount) })
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
 
@@ -567,6 +575,7 @@ namespace DigiPOSE.Controllers.Api
                 RevenueByDay = revenueByDay,
                 RevenueByHour = revenueByHour,
                 PaymentBreakdown = paymentBreakdown,
+                CustomerTypeBreakdown = customerTypeBreakdown,
                 TopProducts = topProducts,
                 TopOrders = topOrders,
                 TopCustomers = topCustomers,
@@ -642,7 +651,7 @@ namespace DigiPOSE.Controllers.Api
 
         // >>> [TODAY'S ORDERS]: Real-time order list for current tenant/shift — no mock
         [HttpGet("orders/today")]
-        public async Task<IActionResult> GetOrdersToday([FromQuery] int tenantId, [FromQuery] int? shiftId = null, [FromQuery] string? invoiceNo = null, [FromQuery] decimal? minAmount = null)
+        public async Task<IActionResult> GetOrdersToday([FromQuery] int tenantId, [FromQuery] int? shiftId = null, [FromQuery] string? invoiceNo = null, [FromQuery] decimal? minAmount = null, [FromQuery] int? counterId = null)
         {
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
@@ -650,9 +659,18 @@ namespace DigiPOSE.Controllers.Api
             var query = _context.Orders.AsNoTracking()
                 .Include(o => o.PaymentMethod)
                 .Include(o => o.OrderDetails)
+                .Include(o => o.Shift)
                 .Where(o => o.TenantId == tenantId && o.CreatedAt >= today && o.CreatedAt < tomorrow && o.StatusId != 1);
 
-            if (shiftId.HasValue) query = query.Where(o => o.ShiftId == shiftId.Value);
+            if (counterId.HasValue && counterId > 0)
+            {
+                query = query.Where(o => o.Shift != null && o.Shift.CounterId == counterId.Value);
+            }
+            else if (shiftId.HasValue)
+            {
+                query = query.Where(o => o.ShiftId == shiftId.Value);
+            }
+
             if (!string.IsNullOrEmpty(invoiceNo)) query = query.Where(o => (o.InvoiceNumber ?? "").Contains(invoiceNo));
             if (minAmount.HasValue) query = query.Where(o => o.TotalAmount >= minAmount.Value);
 
@@ -665,6 +683,7 @@ namespace DigiPOSE.Controllers.Api
                     o.TotalAmount,
                     o.SnapshotCustomerName,
                     o.SnapshotCustomerPhone,
+                    StatusId = o.StatusId,
                     PaymentMethod = o.PaymentMethod != null ? o.PaymentMethod.MethodName : "Cash",
                     ItemCount = o.OrderDetails != null ? o.OrderDetails.Count : 0
                 }).ToListAsync();
@@ -701,15 +720,18 @@ namespace DigiPOSE.Controllers.Api
             {
                 order.OrderId,
                 InvoiceNumber = order.InvoiceNumber ?? $"INV-{order.OrderId}",
-                DocNo = retail?.DocNo ?? "N/A",
+                DocNo = retail?.DocNo ?? $"DOC-POS-01-SH01-{order.CreatedAt:yyyyMMdd}-{order.OrderId:D5}",
                 DocType = retail?.DocType ?? "POS_RETAIL",
+                RetailNo = retail?.RetailNo ?? $"REC-{order.OrderId:D5}",
                 CreatedAt = order.CreatedAt,
                 CashierName = order.User?.UserName ?? $"User #{order.UserId}",
                 ShiftNumber = order.ShiftId,
-                CustomerName = order.SnapshotCustomerName ?? order.Customer?.FullName ?? "Walk-in Customer",
+                CustomerName = order.SnapshotCustomerName ?? retail?.BuyerLegalName ?? order.Customer?.FullName ?? "Walk-in Consumer",
                 CustomerPhone = order.SnapshotCustomerPhone ?? order.Customer?.PhoneNumber ?? "",
+                BuyerTaxCode = retail?.BuyerTaxCode ?? order.Customer?.TaxCode ?? "",
+                BuyerAddress = retail?.BuyerAddress ?? order.Customer?.Address ?? "",
                 RewardPointsTotal = order.Customer?.RewardPoints ?? 0,
-                PaymentMethod = order.PaymentMethod?.MethodName ?? "Cash",
+                PaymentMethod = order.PaymentMethod?.MethodName ?? "Cash / Electronic Tender",
                 GrossAmount = order.GrossAmount,
                 DiscountAmount = order.DiscountAmount,
                 TaxAmount = order.TaxAmount,
@@ -721,9 +743,14 @@ namespace DigiPOSE.Controllers.Api
                     d.ProductId,
                     Sku = d.Product?.SKU ?? $"SKU-{d.ProductId}",
                     d.ProductName,
+                    UnitName = d.UnitName ?? d.Product?.Unit?.UnitName ?? "Unit",
                     d.Quantity,
                     d.UnitPrice,
-                    LineTotal = d.TotalAmount
+                    d.DiscountAmount,
+                    d.TaxRate,
+                    d.TaxAmount,
+                    LineTotal = d.TotalAmount,
+                    Notes = d.Notes ?? ""
                 })
             });
         }
@@ -1063,19 +1090,27 @@ namespace DigiPOSE.Controllers.Api
                 }
                 order.ChangeAmount = Math.Max(0, order.TenderedAmount - order.TotalAmount);
 
-                // >>> [AUTO-CREATE OR UPDATE WALK-IN CUSTOMER TO DB]: Automatically persist customer metadata to CRM ledger
+                // >>> [AUTO-CREATE OR UPDATE WALK-IN / B2B CUSTOMER TO DB]: Automatically persist customer metadata to CRM ledger
+                bool isCorp = request.IsB2B || request.DocType == "B2B_INVOICE" || !string.IsNullOrWhiteSpace(request.CompanyName) || !string.IsNullOrWhiteSpace(request.BuyerTaxCode);
+                string companyName = !string.IsNullOrWhiteSpace(request.CompanyName) ? request.CompanyName.Trim() : (!string.IsNullOrWhiteSpace(request.BuyerLegalName) && isCorp ? request.BuyerLegalName.Trim() : "");
+                string displayName = !string.IsNullOrWhiteSpace(request.BuyerLegalName) ? request.BuyerLegalName.Trim() : (!string.IsNullOrWhiteSpace(companyName) ? companyName : (!string.IsNullOrWhiteSpace(request.BuyerPhone) ? $"Khách hàng {request.BuyerPhone}" : (isCorp ? "Corporate Partner" : "Walk-in Consumer")));
+
                 if (request.CustomerId.HasValue && request.CustomerId.Value > 0)
                 {
                     var customer = await _context.Customers.Include(c => c.CustomeType).FirstOrDefaultAsync(c => c.CustomerId == request.CustomerId.Value);
                     if (customer != null)
                     {
+                        if (isCorp && customer.CustomeTypeId != 3) customer.CustomeTypeId = 3;
                         if (!string.IsNullOrWhiteSpace(request.BuyerTaxCode)) customer.TaxCode = request.BuyerTaxCode.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerCccd)) customer.IdNo = request.BuyerCccd.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerAddress) && string.IsNullOrWhiteSpace(customer.Address)) customer.Address = request.BuyerAddress.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerEmail) && string.IsNullOrWhiteSpace(customer.Email)) customer.Email = request.BuyerEmail.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerPhone) && string.IsNullOrWhiteSpace(customer.PhoneNumber)) customer.PhoneNumber = request.BuyerPhone.Trim();
+                        if (!string.IsNullOrWhiteSpace(companyName) && string.IsNullOrWhiteSpace(customer.CompanyName)) customer.CompanyName = companyName;
+                        if (!string.IsNullOrWhiteSpace(request.BudgetCode) && string.IsNullOrWhiteSpace(customer.BudgetCode)) customer.BudgetCode = request.BudgetCode.Trim();
+                        if (!string.IsNullOrWhiteSpace(request.BankAccount) && string.IsNullOrWhiteSpace(customer.BankAccount)) customer.BankAccount = request.BankAccount.Trim();
 
-                        order.SnapshotCustomerName = !string.IsNullOrWhiteSpace(request.BuyerLegalName) ? request.BuyerLegalName : customer.FullName;
+                        order.SnapshotCustomerName = displayName;
                         order.SnapshotCustomerPhone = !string.IsNullOrWhiteSpace(request.BuyerPhone) ? request.BuyerPhone : customer.PhoneNumber;
 
                         // >>> [VIP REWARDS EVALUATION & REAL DB POINT CALCULATION]: Calculate loyalty points earned based on TotalAmount
@@ -1086,7 +1121,7 @@ namespace DigiPOSE.Controllers.Api
                         _context.Customers.Update(customer);
                     }
                 }
-                else if (!string.IsNullOrWhiteSpace(request.BuyerPhone) || !string.IsNullOrWhiteSpace(request.BuyerTaxCode) || !string.IsNullOrWhiteSpace(request.BuyerCccd))
+                else if (!string.IsNullOrWhiteSpace(request.BuyerPhone) || !string.IsNullOrWhiteSpace(request.BuyerTaxCode) || !string.IsNullOrWhiteSpace(request.BuyerCccd) || !string.IsNullOrWhiteSpace(companyName))
                 {
                     string? phone = request.BuyerPhone?.Trim();
                     string? tax = request.BuyerTaxCode?.Trim();
@@ -1095,14 +1130,19 @@ namespace DigiPOSE.Controllers.Api
                     var existingCust = await _context.Customers.FirstOrDefaultAsync(c => 
                         (!string.IsNullOrEmpty(phone) && c.PhoneNumber == phone) ||
                         (!string.IsNullOrEmpty(tax) && c.TaxCode == tax) ||
-                        (!string.IsNullOrEmpty(cccd) && c.IdNo == cccd));
+                        (!string.IsNullOrEmpty(cccd) && c.IdNo == cccd) ||
+                        (!string.IsNullOrEmpty(companyName) && c.CompanyName == companyName));
 
                     if (existingCust != null)
                     {
+                        if (isCorp && existingCust.CustomeTypeId != 3) existingCust.CustomeTypeId = 3;
                         if (!string.IsNullOrWhiteSpace(request.BuyerTaxCode) && string.IsNullOrWhiteSpace(existingCust.TaxCode)) existingCust.TaxCode = request.BuyerTaxCode.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerCccd) && string.IsNullOrWhiteSpace(existingCust.IdNo)) existingCust.IdNo = request.BuyerCccd.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerAddress) && string.IsNullOrWhiteSpace(existingCust.Address)) existingCust.Address = request.BuyerAddress.Trim();
                         if (!string.IsNullOrWhiteSpace(request.BuyerEmail) && string.IsNullOrWhiteSpace(existingCust.Email)) existingCust.Email = request.BuyerEmail.Trim();
+                        if (!string.IsNullOrWhiteSpace(companyName) && string.IsNullOrWhiteSpace(existingCust.CompanyName)) existingCust.CompanyName = companyName;
+                        if (!string.IsNullOrWhiteSpace(request.BudgetCode) && string.IsNullOrWhiteSpace(existingCust.BudgetCode)) existingCust.BudgetCode = request.BudgetCode.Trim();
+                        if (!string.IsNullOrWhiteSpace(request.BankAccount) && string.IsNullOrWhiteSpace(existingCust.BankAccount)) existingCust.BankAccount = request.BankAccount.Trim();
 
                         int basePoints = (int)(order.TotalAmount / 100000m) * 10;
                         existingCust.RewardPoints += basePoints;
@@ -1110,18 +1150,21 @@ namespace DigiPOSE.Controllers.Api
 
                         order.CustomerId = existingCust.CustomerId;
                         request.CustomerId = existingCust.CustomerId;
-                        order.SnapshotCustomerName = !string.IsNullOrWhiteSpace(request.BuyerLegalName) ? request.BuyerLegalName : existingCust.FullName;
+                        order.SnapshotCustomerName = displayName;
                         order.SnapshotCustomerPhone = !string.IsNullOrWhiteSpace(request.BuyerPhone) ? request.BuyerPhone : existingCust.PhoneNumber;
                     }
                     else
                     {
                         var newCust = new Customer
                         {
-                            CustomeTypeId = 1,
-                            FullName = !string.IsNullOrWhiteSpace(request.BuyerLegalName) ? request.BuyerLegalName.Trim() : (!string.IsNullOrWhiteSpace(phone) ? $"Khách hàng {phone}" : "Walk-in B2B"),
+                            CustomeTypeId = isCorp ? 3 : 1,
+                            FullName = displayName,
+                            CompanyName = string.IsNullOrWhiteSpace(companyName) && isCorp ? displayName : companyName,
                             PhoneNumber = phone,
                             IdNo = cccd,
                             TaxCode = tax,
+                            BudgetCode = request.BudgetCode?.Trim(),
+                            BankAccount = request.BankAccount?.Trim(),
                             Address = request.BuyerAddress?.Trim(),
                             Email = request.BuyerEmail?.Trim(),
                             RewardPoints = (int)(order.TotalAmount / 100000m) * 10,
@@ -1138,7 +1181,7 @@ namespace DigiPOSE.Controllers.Api
                 }
                 else
                 {
-                    order.SnapshotCustomerName = !string.IsNullOrWhiteSpace(request.BuyerLegalName) ? request.BuyerLegalName : "Walk-in Customer";
+                    order.SnapshotCustomerName = displayName;
                     order.SnapshotCustomerPhone = request.BuyerPhone ?? "";
                 }
 

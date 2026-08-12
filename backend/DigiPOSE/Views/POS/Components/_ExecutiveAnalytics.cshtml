@@ -5,12 +5,17 @@
             <h3 style="font-family:var(--font-hdr); color:var(--pos-cyan); font-size:1.3rem; font-weight:700; margin:0;"><i class="fa-solid fa-chart-pie me-2"></i>EXECUTIVE ANALYTICS MATRIX</h3>
             <div style="font-size:0.75rem; color:var(--pos-text-secondary); margin-top:2px;">OPERATIONAL PERFORMANCE METRICS & REVENUE TELEMETRY</div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <button class="filter-chip active" onclick="setQuickDateFilter('today', this)"><i class="fa-solid fa-calendar-day me-1"></i> TODAY</button>
+            <button class="filter-chip" onclick="setQuickDateFilter('week', this)"><i class="fa-solid fa-calendar-week me-1"></i> THIS WEEK</button>
+            <button class="filter-chip" onclick="setQuickDateFilter('month', this)"><i class="fa-solid fa-calendar-days me-1"></i> THIS MONTH</button>
+            <button class="filter-chip" onclick="setQuickDateFilter('all', this)"><i class="fa-solid fa-globe me-1"></i> ALL TIME</button>
+            <span style="border-left:1px solid #333; height:24px; margin: 0 4px;"></span>
             <label style="font-size:0.75rem; color:var(--pos-text-secondary);">FROM:</label>
-            <input type="date" id="dateFrom" class="cyber-search-input" style="width:150px; padding:6px 10px;" />
+            <input type="date" id="dateFrom" class="cyber-search-input" style="width:140px; padding:6px 10px;" />
             <label style="font-size:0.75rem; color:var(--pos-text-secondary);">TO:</label>
-            <input type="date" id="dateTo" class="cyber-search-input" style="width:150px; padding:6px 10px;" />
-            <button onclick="loadAnalyticsData()" class="deck-btn active"><i class="fa-solid fa-arrows-rotate me-1"></i> REFRESH</button>
+            <input type="date" id="dateTo" class="cyber-search-input" style="width:140px; padding:6px 10px;" />
+            <button onclick="loadAnalyticsData()" class="deck-btn active" style="border-color:var(--pos-cyan); color:var(--pos-cyan);"><i class="fa-solid fa-arrows-rotate me-1"></i> REFRESH</button>
         </div>
     </div>
 
@@ -26,7 +31,7 @@
         <div class="kpi-tile" style="border-left-color:#00BFFF;"><div class="title"><i class="fa-solid fa-building-columns me-1"></i>VAT TAX COLLECTED</div><div class="value" id="kpiTotalVat">--</div></div>
     </div>
 
-    <!-- HYBRID RESPONSIVE CHART & LEDGER GRID (Full width for time series & lists; Half width for categorical breakdowns) -->
+    <!-- HYBRID RESPONSIVE CHART & LEDGER GRID -->
     <div class="analytics-hybrid-grid">
         <!-- 1. Full Width: Daily Revenue & Orders Over Time (Column/Bar Chart) -->
         <div class="chart-box analytics-full-width">
@@ -44,10 +49,18 @@
             </div>
         </div>
 
-        <!-- 3. Half Width: Top 10 Best Selling Items (Categorical Chart) -->
+        <!-- 3. Half Width: Customer Type Revenue Breakdown (Pie Chart) -->
         <div class="chart-box analytics-half-width">
-            <h5><i class="fa-solid fa-ranking-star me-2"></i>TOP 10 BEST SELLING ITEMS</h5>
+            <h5><i class="fa-solid fa-chart-pie me-2 text-emerald"></i>CUSTOMER TYPE REVENUE SHARE</h5>
             <div style="position:relative; height:260px; width:100%;">
+                <canvas id="chartCustomerType"></canvas>
+            </div>
+        </div>
+
+        <!-- 3.1 Full Width: Top 10 Best Selling Items (Categorical Chart) -->
+        <div class="chart-box analytics-full-width">
+            <h5><i class="fa-solid fa-ranking-star me-2"></i>TOP 10 BEST SELLING ITEMS</h5>
+            <div style="position:relative; height:280px; width:100%;">
                 <canvas id="chartTopProducts"></canvas>
             </div>
         </div>

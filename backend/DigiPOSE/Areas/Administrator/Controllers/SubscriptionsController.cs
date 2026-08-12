@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +8,7 @@ using System.Linq.Dynamic.Core;
 namespace DigiPOSE.Areas.Administrator.Controllers
 {
     [Area("Administrator")]
-    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager, Accountant, Sales Manager")]
+    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager")]
     public class SubscriptionsController : Controller
     {
         private readonly DigiPoseDbContext _context;

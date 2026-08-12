@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DigiPOSE.Models;
@@ -7,7 +7,7 @@ using System.Linq.Dynamic.Core;
 namespace DigiPOSE.Areas.Administrator.Controllers
 {
     [Area("Administrator")]
-    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager, POS Operator, Warehouse, Catalog, Accountant")]
+    [Authorize(Roles = "Super Admin, Administrator")]
     public class PermissionRolesController : Controller
     {
         private readonly DigiPoseDbContext _context;
@@ -80,7 +80,7 @@ namespace DigiPOSE.Areas.Administrator.Controllers
         {
             var query = _context.PermissionRoles
                 .Include(pr => pr.Role)
-                .Include(pr => pr.Permission).ThenInclude(p => p.Module)
+                .Include(pr => pr.Permission).ThenInclude(p => p!.Module)
                 .AsQueryable();
             if (!string.IsNullOrEmpty(searchValue))
             {

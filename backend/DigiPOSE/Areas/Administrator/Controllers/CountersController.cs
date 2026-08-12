@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DigiPOSE.Models;
 using System.Linq.Dynamic.Core;
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace DigiPOSE.Areas.Administrator.Controllers
 {
     [Area("Administrator")]
-    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager, POS Operator, Warehouse, Catalog, Accountant")]
+    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager")]
     public class CountersController : Controller
     {
         private readonly DigiPoseDbContext _context;

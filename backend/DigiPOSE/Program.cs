@@ -132,6 +132,47 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
+// >>> [ZERO-TRUST ROUTE REMAPPING MIDDLEWARE]: Intercept legacy/bookmarked /Administrator/* URLs and transparently redirect to properly partitioned domain Areas
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value;
+    if (!string.IsNullOrEmpty(path) && path.StartsWith("/Administrator/", StringComparison.OrdinalIgnoreCase))
+    {
+        var catalogModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Categories", "Units", "Manufacturers", "TaxTypes", "ProductTypes", "ItemNatures", "Products"
+        };
+        var warehouseModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "ProductInventories", "StockVouchers", "StockVoucherDetails", "StockTransfers", "StockAudits", "Suppliers"
+        };
+        var accountantModules = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "OrderStatuses", "PaymentMethods", "Orders", "OrderDetails", "InvoiceStatuses", "InvoiceTypes", "Invoices", "Retails"
+        };
+
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length >= 2 && string.Equals(segments[0], "Administrator", StringComparison.OrdinalIgnoreCase))
+        {
+            var controllerName = segments[1];
+            string? targetArea = null;
+            if (catalogModules.Contains(controllerName)) targetArea = "Catalog";
+            else if (warehouseModules.Contains(controllerName)) targetArea = "Warehouse";
+            else if (accountantModules.Contains(controllerName)) targetArea = "Accountant";
+
+            if (targetArea != null)
+            {
+                var query = context.Request.QueryString.HasValue ? context.Request.QueryString.Value : "";
+                var targetUrl = $"/{targetArea}" + path.Substring(14) + query;
+                context.Response.Redirect(targetUrl, permanent: false);
+                return;
+            }
+        }
+    }
+    await next();
+});
+
 app.UseRouting();
 
 app.UseCors("StorefrontCorsPolicy");

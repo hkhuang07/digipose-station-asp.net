@@ -1,0 +1,23 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=YOUR_PRODUCTION_SQL_HOST,1433;Database=DigiPoseDb;User Id=sa;Password=YOUR_STRONG_PASSWORD;Encrypt=True;TrustServerCertificate=False;"
+  },
+  "TurnstileSettings": {
+    "SiteKey": "YOUR_PRODUCTION_TURNSTILE_SITE_KEY",
+    "SecretKey": "YOUR_PRODUCTION_TURNSTILE_SECRET_KEY"
+  },
+  "MailSettings": {
+    "Mail": "noreply@yourdomain.com",
+    "DisplayName": "DigiPOSE System",
+    "Password": "YOUR_SMTP_APP_PASSWORD",
+    "Host": "smtp.gmail.com",
+    "Port": 587
+  },
+  "AllowedHosts": "*"
+}

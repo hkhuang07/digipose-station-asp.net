@@ -1,4 +1,4 @@
-﻿using DigiPOSE.Models;
+using DigiPOSE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -62,14 +62,15 @@ namespace DigiPOSE.Controllers
             return userRole switch
             {
                 "Super Admin" => RedirectToAction("Index", "Home", new { Area = "Administrator" }),
+                "Administrator" => RedirectToAction("Index", "Home", new { Area = "Administrator" }),
                 "Tenant Manager" => RedirectToAction("Index", "Home", new { Area = "Administrator" }),
-                "POS Operator" => RedirectToAction("Index", "Home", new { Area = "Administrator" }), 
-                "Warehouse" => RedirectToAction("Index", "Home", new { Area = "Administrator" }), 
-                "Catalog" => RedirectToAction("Index", "Home", new { Area = "Administrator" }), 
-                "Accountant" => RedirectToAction("Index", "Home", new { Area = "Administrator" }), 
+                "POS Operator" => RedirectToAction("Index", "POS", new { Area = "" }), 
+                "Warehouse" => RedirectToAction("Index", "Home", new { Area = "Warehouse" }), 
+                "Catalog" => RedirectToAction("Index", "Home", new { Area = "Catalog" }), 
+                "Accountant" => RedirectToAction("Index", "Home", new { Area = "Accountant" }), 
                 "Pending Approval" => RedirectToAction("Index", "Profile", new { Area = "" }), 
                 "User" => RedirectToAction("Index", "Storefront", new { Area = "" }), 
-                _ => RedirectToAction("Index", "Home", new { Area = "Administrator" })
+                _ => RedirectToAction("Index", "Storefront", new { Area = "" })
             };
         }
 

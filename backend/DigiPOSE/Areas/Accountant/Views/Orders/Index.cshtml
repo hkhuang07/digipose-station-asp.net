@@ -1,0 +1,241 @@
+@model IEnumerable<DigiPOSE.Models.Order>
+@{ ViewData["Title"] = "Orders"; }
+<style>
+    .draft-row td { opacity: 0.55; }
+    .draft-row:hover td { opacity: 0.85; }
+    .badge-draft { background: #2A2000 !important; color: #FFB000 !important; border: 1px solid #FFB000; font-size: 0.68rem; }
+    .btn-toggle-draft { 
+        background: #000000 !important; background-color: #000000 !important;
+        border-top: 1px solid #FFB000 !important; border-bottom: 1px solid #FFB000 !important;
+        border-left: none !important; border-right: none !important;
+        color: #FFB000 !important; font-family: 'Orbitron', var(--font-header), sans-serif; font-size: 0.8rem; font-weight: 700;
+        padding: 8px 20px; cursor: pointer; transition: all 0.2s ease; height: 38px;
+        clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); text-transform: uppercase; letter-spacing: 1px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+        box-shadow: inset 0 0 8px rgba(255, 176, 0, 0.2); text-shadow: 0 0 4px rgba(255, 176, 0, 0.5);
+    }
+    .btn-toggle-draft.active { 
+        background: #000000 !important; color: #FFB000 !important; border-top: 2px solid #FFB000 !important; border-bottom: 2px solid #FFB000 !important;
+        box-shadow: 0 0 15px rgba(255, 176, 0, 0.5), inset 0 0 10px rgba(255, 176, 0, 0.3) !important; text-shadow: 0 0 6px #FFB000;
+    }
+    .btn-toggle-draft:hover { 
+        background: #FFB000 !important; background-color: #FFB000 !important; color: #000000 !important; 
+        border-top-color: #FFB000 !important; border-bottom-color: #FFB000 !important;
+        box-shadow: 0 0 15px rgba(255, 176, 0, 0.8) !important; text-shadow: none !important;
+    }
+    .btn-toggle-draft:hover #draftCountChip { color: #000000 !important; }
+    .btn-cleanup-draft { 
+        background: #000000 !important; background-color: #000000 !important;
+        border-top: 1px solid #FF3333 !important; border-bottom: 1px solid #FF3333 !important;
+        border-left: none !important; border-right: none !important;
+        color: #FF3333 !important; font-family: 'Orbitron', var(--font-header), sans-serif; font-size: 0.8rem; font-weight: 700;
+        padding: 8px 20px; cursor: pointer; transition: all 0.2s ease; height: 38px;
+        clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); text-transform: uppercase; letter-spacing: 1px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
+        box-shadow: inset 0 0 8px rgba(255, 51, 51, 0.2); text-shadow: 0 0 4px rgba(255, 51, 51, 0.5);
+    }
+    .btn-cleanup-draft:hover { 
+        background: #FF3333 !important; background-color: #FF3333 !important; color: #000000 !important; 
+        border-top-color: #FF3333 !important; border-bottom-color: #FF3333 !important;
+        box-shadow: 0 0 15px rgba(255, 51, 51, 0.8) !important; text-shadow: none !important;
+    }
+    #draftCountChip { font-family: 'VT323', monospace; font-size: 1.15rem; color: #FFB000 !important; }
+    .btn-cyber-success, .btn-cyber-info { height: 38px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+</style>
+<div class="cyber-panel">
+    <div class="cyber-panel-header">
+        <div class="cyber-panel-title"><i class="fa-solid fa-cart-shopping"></i> ORDER MANAGEMENT</div>
+        <div class="cyber-panel-sub">[SALES MODULE] // TRANSACTION LEDGER · DRAFT-INCLUSIVE VIEW</div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn-cyber-success btn-show-modal" data-url="@Url.Action("Create", "Orders")"><i class="fa-solid fa-plus me-1"></i> ADD ORDER</button>
+            <a href="@Url.Action("ExportExcel", "Orders")" class="btn-cyber-info btn-export-excel" style="text-decoration:none;"><i class="fa-solid fa-file-excel me-1"></i> EXPORT</a>
+            <div style="width:1px; height:24px; background:#222; margin:0 4px;"></div>
+            <button id="btnToggleDraft" class="btn-toggle-draft active" onclick="toggleDraftVisibility()" title="Toggle Draft orders visibility">
+                <i class="fa-solid fa-file-pen me-1"></i><span id="toggleDraftText">SHOW DRAFT</span>
+                <span id="draftCountChip" style="margin-left:4px; color:#FFB000;"></span>
+            </button>
+            <button id="btnCleanupDraft" class="btn-cleanup-draft" onclick="triggerDraftCleanup()" title="Purge stale drafts older than 2 hours">
+                <i class="fa-solid fa-broom me-1"></i>CLEANUP STALE
+            </button>
+        </div>
+        <div style="font-family:'Roboto Mono'; font-size:0.85rem; color:#00E5FF; white-space:nowrap;">TOTAL RECORDS: <strong id="totalRecordsCount" style="color:#FFF; font-family:'VT323'; font-size:1.3rem;">--</strong></div>
+    </div>
+    <!-- Draft status info bar -->
+    <div id="draftInfoBar" style="background:rgba(255,176,0,0.05); border:1px solid rgba(255,176,0,0.2); padding:8px 14px; margin-bottom:14px; font-family:'Roboto Mono',monospace; font-size:0.75rem; color:#888; display:flex; align-items:center; gap:10px;">
+        <i class="fa-solid fa-triangle-exclamation" style="color:#FFB000;"></i>
+        <span><span style="color:#FFB000; font-weight:bold;">DRAFT (POS In-Progress)</span> rows are dimmed — these are active POS sessions that have not been paid out yet. They will be auto-purged after <b style="color:#CCC;">2 hours</b> of inactivity.</span>
+    </div>
+    <div class="table-responsive">
+        <table id="datatable" class="table-cyber w-100">
+            <thead>
+                <tr>
+                    <th style="width:5%; text-align:center; white-space:nowrap;">#</th>
+                    <th style="white-space:nowrap;">@Html.DisplayNameFor(model => model.OrderId)</th>
+                    <th style="white-space:nowrap;">Customer</th>
+                    <th style="white-space:nowrap;">Status</th>
+                    <th style="white-space:nowrap; text-align:right;">@Html.DisplayNameFor(model => model.TotalAmount)</th>
+                    <th style="white-space:nowrap;">@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                    <th style="width:120px; text-align:center; white-space:nowrap;">ACTIONS</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div class="modal fade modal-cyber" id="globalModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:800px;" id="globalModalContainer"></div>
+</div>
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        var showDraft = true; // default: show drafts
+        var dtTable;
+
+        $(document).ready(function(){
+            dtTable = $('#datatable').DataTable({
+                serverSide: true,
+                processing: true,
+                filter: true,
+                ajax: {
+                    url: '@Url.Action("Index_LoadData", "Orders")',
+                    type: "POST",
+                    dataType: "JSON",
+                    // Pass showDraft flag so backend can optionally filter
+                    data: function(d) {
+                        d.showDraft = showDraft;
+                        return d;
+                    }
+                },
+                order: [[5, 'desc']],
+                columns: [
+                    { data: null, name: null, sortable: false, render: (d, t, r, meta) => meta.row + meta.settings._iDisplayStart + 1 },
+                    { data: 'orderId', name: 'OrderId', render: (d, t, r) => {
+                        const isDraft = r.isDraft;
+                        const draftTag = isDraft ? `<span style="font-size:0.62rem; color:#FFB000; font-family:'Roboto Mono'; display:block; line-height:1;">[POS DRAFT]</span>` : '';
+                        return `<span style="color:${isDraft ? '#666' : '#FFF'}; font-family:'VT323'; font-size:1.2rem;">#${d}</span>${draftTag}`;
+                    }},
+                    { data: 'customerName', name: 'CustomerName', render: (d, t, r) => `<span style="color:${r.isDraft ? '#555' : '#A0C0CE'};">${d}</span>` },
+                    { data: 'statusName', name: 'StatusName', render: (d, t, r) => {
+                        if (r.isDraft) {
+                            return `<span class="badge badge-draft"><i class="fa-solid fa-file-pen me-1"></i>DRAFT / IN-PROGRESS</span>`;
+                        }
+                        return `<span class="badge" style="background-color:${r.badgeColor || '#6c757d'}; color:#FFF;">${d || 'N/A'}</span>`;
+                    }},
+                    {
+                        data: 'totalAmount',
+                        name: 'TotalAmount',
+                        render: (d, t, r) => {
+                            const color = r.isDraft ? '#444' : '#00FF66';
+                            const val = r.isDraft ? `<span style="color:#555; font-size:0.7rem; font-family:'Roboto Mono';">—</span>` : $.fn.dataTable.render.number(',', '.', 0, '').display(d);
+                            return `<span style="color:${color}; font-family:'VT323'; font-size:1.1rem; float:right;">${val}</span>`;
+                        }
+                    },
+                    {
+                        data: 'createdAt',
+                        name: 'CreatedAt',
+                        render: (d, t, r) => `<span style="color:${r.isDraft ? '#555' : '#A0C0CE'}; font-family:'Roboto Mono'; font-size:0.82rem;">${d.replace('T', ' ')}</span>`
+                    },
+                    {
+                        data: null,
+                        searchable: false,
+                        orderable: false,
+                        render: function (d, t, r) {
+                            var detailsUrl = '@Url.Action("Details", "Orders")/' + r.orderId;
+                            var editUrl = '@Url.Action("Edit", "Orders")/' + r.orderId;
+                            var deleteUrl = '@Url.Action("Delete", "Orders")/' + r.orderId;
+                            var btns = '<div style="text-align:center;">'
+                                + '<button type="button" class="btn-cyber-info btn-show-modal" data-url="' + detailsUrl + '" style="padding:4px 8px; font-size:0.75rem; border-color:#00E5FF; color:#00E5FF;" title="Details"><i class="fa-solid fa-circle-info"></i></button> '
+                                + '<button type="button" class="btn-cyber-primary btn-show-modal" data-url="' + editUrl + '" style="padding:4px 8px; font-size:0.75rem; border-color:#FFB000; color:#FFB000;" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button> '
+                                + '<button type="button" class="btn-cyber-danger btn-show-modal" data-url="' + deleteUrl + '" style="padding:4px 8px; font-size:0.75rem;" title="Delete"><i class="fa-solid fa-trash"></i></button>';
+                            if (r.isDraft) {
+                                btns += ' <button type="button" class="btn-cyber-danger" onclick="purgeDraft(' + r.orderId + ')" style="padding:4px 8px; font-size:0.75rem; border-color:#FF5533; color:#FF5533;" title="Purge this draft"><i class="fa-solid fa-broom"></i></button>';
+                            }
+                            btns += '</div>';
+                            return btns;
+                        }
+                    }
+                ],
+                createdRow: function(row, data) {
+                    if (data.isDraft) {
+                        $(row).addClass('draft-row');
+                        $(row).attr('title', 'POS Draft — in-progress order not yet paid');
+                    }
+                },
+                drawCallback: function (settings) {
+                    var api = this.api();
+                    var json = api.ajax.json();
+                    if (json && json.recordsTotal !== undefined) {
+                        $('#totalRecordsCount').text(json.recordsTotal);
+                    }
+                    if (json && json.draftCount !== undefined) {
+                        $('#draftCountChip').text(json.draftCount > 0 ? `(${json.draftCount})` : '');
+                    }
+                }
+            });
+        });
+
+        function toggleDraftVisibility() {
+            showDraft = !showDraft;
+            const btn = document.getElementById('btnToggleDraft');
+            const infoBar = document.getElementById('draftInfoBar');
+            const textSpan = document.getElementById('toggleDraftText');
+            btn.classList.toggle('active', showDraft);
+            btn.querySelector('i').className = showDraft ? 'fa-solid fa-file-pen me-1' : 'fa-solid fa-eye-slash me-1';
+            if (textSpan) textSpan.textContent = showDraft ? 'SHOW DRAFT' : 'HIDE DRAFT';
+            infoBar.style.display = showDraft ? 'flex' : 'none';
+            dtTable.ajax.reload();
+        }
+
+        // Purge a single stale draft (admin only)
+        function purgeDraft(orderId) {
+            showCyberConfirm("PURGE DRAFT ORDER", `Permanently delete Draft #${orderId}? This action cannot be reversed in the transaction ledger.`, "danger", async function() {
+                try {
+                    const res = await fetch(`/api/v1/POS/retail-draft/${orderId}/purge`, { method: 'DELETE' });
+                    if (res.ok) {
+                        showCyberNotify("DRAFT PURGED", `Draft order #${orderId} was permanently removed from active transaction memory.`, "success");
+                        dtTable.ajax.reload(null, false);
+                    } else {
+                        showCyberNotify("PURGE FAULT", "Failed to purge draft order from transaction ledger. Check server telemetry logs.", "error");
+                    }
+                } catch(e) {
+                    showCyberNotify("NETWORK FAULT", "Communication anomaly occurred while contacting the retail draft purge service.", "error");
+                }
+            }, "PURGE NOW", "ABORT");
+        }
+
+        // Trigger bulk cleanup of drafts older than 2 hours
+        function triggerDraftCleanup() {
+            showCyberConfirm("PURGE STALE DRAFTS", "Purge all abandoned POS draft orders older than 2 hours? This is a safe ledger maintenance operation.", "warning", async function() {
+                const btn = document.getElementById('btnCleanupDraft');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>CLEANING...';
+                try {
+                    const res = await fetch('/api/v1/POS/retail-draft/cleanup-stale', { method: 'DELETE' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const purgedCount = data.purgedCount || 0;
+                        btn.innerHTML = `<i class="fa-solid fa-check me-1" style="color:#00FF66;"></i>PURGED ${purgedCount}`;
+                        showCyberNotify("LEDGER CLEANUP COMPLETE", `Successfully purged ${purgedCount} abandoned POS draft(s) older than 2 hours from system database.`, "success");
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="fa-solid fa-broom me-1"></i>CLEANUP STALE';
+                            btn.disabled = false;
+                        }, 3000);
+                        dtTable.ajax.reload(null, false);
+                    } else {
+                        btn.innerHTML = '<i class="fa-solid fa-broom me-1"></i>CLEANUP STALE';
+                        btn.disabled = false;
+                        showCyberNotify("CLEANUP FAULT", "System encountered an error during automated draft cleanup.", "error");
+                    }
+                } catch(e) {
+                    btn.innerHTML = '<i class="fa-solid fa-broom me-1"></i>CLEANUP STALE';
+                    btn.disabled = false;
+                    showCyberNotify("NETWORK FAULT", "Communication anomaly occurred while contacting POS cleanup service.", "error");
+                }
+            }, "EXECUTE CLEANUP", "CANCEL");
+        }
+    </script>
+}
+

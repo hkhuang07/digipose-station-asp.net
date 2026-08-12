@@ -58,19 +58,31 @@ namespace DigiPOSE.Services.Background
                 {
                     var order = await db.Orders
                         .AsNoTracking()
+                        .Include(o => o.PaymentMethod)
+                        .Include(o => o.Shift)
+                        .Include(o => o.User)
+                        .Include(o => o.Customer)
                         .Include(o => o.OrderDetails!)
+                            .ThenInclude(d => d.Product!)
+                                .ThenInclude(p => p.Unit)
                         .FirstOrDefaultAsync(o => o.OrderId == orderId, ct);
 
                     if (order != null)
                     {
-                        string targetEmail = "audit-archive@digipose.erp"; // Default corporate accounting vault fallback
+                        var retail = await db.Retails.AsNoTracking().FirstOrDefaultAsync(r => r.OrderId == orderId, ct);
+
+                        string targetEmail = "huang.hk07@gmail.com"; // Default corporate accounting vault fallback
                         if (order.CustomerId.HasValue)
                         {
-                            var customer = await db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.CustomerId == order.CustomerId.Value, ct);
+                            var customer = order.Customer ?? await db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.CustomerId == order.CustomerId.Value, ct);
                             if (customer != null && !string.IsNullOrWhiteSpace(customer.Email))
                             {
                                 targetEmail = customer.Email;
                             }
+                        }
+                        else if (retail != null && !string.IsNullOrWhiteSpace(retail.BuyerEmail))
+                        {
+                            targetEmail = retail.BuyerEmail;
                         }
 
                         var mailInfo = new MailInfo
@@ -79,8 +91,8 @@ namespace DigiPOSE.Services.Background
                             Subject = $"[DigiPOSE // E-INVOICE #{order.InvoiceNumber}] ACID Transaction Verification & Receipt"
                         };
 
-                        // Invoke real asynchronous MailKit dispatch
-                        await mailLogic.SendOrderSuccessEmailAsync(order, mailInfo);
+                        // Invoke real asynchronous MailKit dispatch with full fiscal retail record
+                        await mailLogic.SendOrderSuccessEmailAsync(order, mailInfo, retail);
                         _logger.LogInformation(">>> [E-INVOICE_DELIVERY]: E-Invoice [{Invoice}] successfully formatted and sent to [{Email}].", order.InvoiceNumber, targetEmail);
                     }
                 }

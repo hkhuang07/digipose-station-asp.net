@@ -3,15 +3,16 @@
     <!-- LEFT PANEL: HIGH-DENSITY BILLING REGISTER LEDGER -->
     <section class="pos-left-panel">
         <!-- Attached Customer Banner & B2B Credit Guardrail Monitor -->
-        <div class="customer-banner">
-            <div class="customer-info" id="bannerCustomerInfo">
-                <i class="fa-solid fa-user-tag me-2"></i>
-                <span id="txtCustomerNameDisplay">WALK-IN CONSUMER</span>
-                <span id="txtB2bDebtChip" style="display:none; margin-left:8px; background:#000; border:1px solid var(--pos-amber); color:var(--pos-amber); font-size:0.75rem; padding:1px 6px; border-radius:2px;"></span>
+        <!-- Attached Customer Banner & Concise Identifier -->
+        <div class="customer-banner" style="display:flex; justify-content:space-between; align-items:center; overflow:hidden;">
+            <div class="customer-info text-truncate pe-2" id="bannerCustomerInfo" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 65%;">
+                <i class="fa-solid fa-user-tag me-2 text-cyan"></i>
+                <span id="txtCustomerNameDisplay" style="font-weight:700;">WALK-IN CONSUMER</span>
+                <span id="txtB2bDebtChip" style="display:none;"></span>
             </div>
             <div style="display:flex; gap:6px; flex-shrink: 0;">
-                <button onclick="switchMainView('customers')" class="btn btn-sm" style="background:#000; border:1px solid var(--pos-amber); color:var(--pos-amber); font-size:0.75rem; font-family:var(--font-hdr); white-space:nowrap;"><i class="fa-solid fa-id-card me-1"></i> MEMBER</button>
-                <button id="btnRemoveVip" onclick="removeAttachedVip()" class="btn btn-sm" style="display:none; background:#000; border:1px solid var(--pos-crimson); color:var(--pos-crimson); font-size:0.75rem; font-family:var(--font-hdr);"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="switchMainView('customers')" class="btn btn-sm" style="background:#000; border:1px solid var(--pos-amber); color:var(--pos-amber); font-size:0.75rem; font-family:var(--font-hdr); white-space:nowrap; height: 32px; display:flex; align-items:center;"><i class="fa-solid fa-id-card me-1"></i> MEMBER</button>
+                <button id="btnRemoveVip" onclick="removeAttachedVip()" class="btn btn-sm" style="display:none; background:#000; border:1px solid var(--pos-crimson); color:var(--pos-crimson); font-size:0.75rem; font-family:var(--font-hdr); height: 32px; display:flex; align-items:center;"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
 
@@ -56,11 +57,13 @@
                 <span class="lbl">TOTAL TO SETTLE:</span>
                 <span class="val" id="lblTotalToPay">0 ₫</span>
             </div>
-            <div class="cart-actions" style="display:grid; grid-template-columns: 1fr 1fr 1.2fr 2fr; gap:6px;">
-                <button onclick="clearDraftCart()" class="btn" style="background:#000; border:1px solid var(--pos-crimson); color:var(--pos-crimson); font-family:var(--font-hdr); font-size:0.75rem; font-weight:700; padding:10px 6px;"><i class="fa-solid fa-trash me-1"></i> CLEAR</button>
-                <button onclick="parkOrder()" class="btn" style="background:#000; border:1px solid var(--pos-amber); color:var(--pos-amber); font-family:var(--font-hdr); font-size:0.75rem; font-weight:700; padding:10px 6px;"><i class="fa-solid fa-pause me-1"></i> PARK</button>
-                <button onclick="openRecallModal()" class="btn" style="background:#000; border:1px solid var(--pos-cyan); color:var(--pos-cyan); font-family:var(--font-hdr); font-size:0.75rem; font-weight:700; padding:10px 6px;" title="Recall Parked Orders"><i class="fa-solid fa-clock-rotate-left me-1"></i> RECALL <span id="lblParkedBadge" style="background:var(--pos-cyan); color:#000; padding:2px 6px; border-radius:10px; font-size:0.7rem; font-weight:bold; margin-left:4px; display:none;">0</span></button>
-                <button onclick="openCheckoutModal()" class="btn-checkout-execute" style="font-size:0.85rem; padding:10px 6px;"><i class="fa-solid fa-money-bill-transfer me-1"></i> PAY (F12)</button>
+            <div class="cart-actions" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+                    <button onclick="clearDraftCart()" class="btn w-100 d-flex justify-content-center align-items-center" style="height:40px; background:#000; border:1px solid var(--pos-crimson); color:var(--pos-crimson); font-family:var(--font-hdr); font-size:0.78rem; font-weight:700; border-radius:2px;"><i class="fa-solid fa-trash me-1"></i> CLEAR</button>
+                    <button onclick="parkOrder()" class="btn w-100 d-flex justify-content-center align-items-center" style="height:40px; background:#000; border:1px solid var(--pos-amber); color:var(--pos-amber); font-family:var(--font-hdr); font-size:0.78rem; font-weight:700; border-radius:2px;"><i class="fa-solid fa-file-lines me-1"></i> DRAFT</button>
+                    <button onclick="openRecallModal()" class="btn w-100 d-flex justify-content-center align-items-center" style="height:40px; background:#000; border:1px solid var(--pos-cyan); color:var(--pos-cyan); font-family:var(--font-hdr); font-size:0.78rem; font-weight:700; border-radius:2px;" title="Reopen Parked Drafts"><i class="fa-solid fa-folder-open me-1"></i> REOPEN <span id="lblParkedBadge" style="background:var(--pos-cyan); color:#000; padding:2px 6px; border-radius:10px; font-size:0.72rem; font-weight:bold; margin-left:5px; display:none;">0</span></button>
+                </div>
+                <button onclick="openCheckoutModal()" class="btn-checkout-execute w-100 d-flex justify-content-center align-items-center" style="height:44px; font-size:0.95rem; font-weight:900; letter-spacing:1px;"><i class="fa-solid fa-credit-card me-2"></i> PAYMENT (F12)</button>
             </div>
         </footer>
     </section>

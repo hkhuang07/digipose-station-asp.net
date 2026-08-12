@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DigiPOSE.Models;
@@ -7,7 +7,7 @@ using System.Linq.Dynamic.Core;
 namespace DigiPOSE.Areas.Administrator.Controllers
 {
     [Area("Administrator")]
-    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager, POS Operator, Warehouse, Catalog, Accountant")]
+    [Authorize(Roles = "Super Admin, Administrator")]
     public class PermissionsController : Controller
     {
         private readonly DigiPoseDbContext _context;

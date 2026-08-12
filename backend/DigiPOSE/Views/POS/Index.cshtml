@@ -195,7 +195,7 @@
 <div id="modalCheckout" class="modal-centric-backdrop">
     <div class="modal-centric-box" style="max-width: 860px;">
         <div class="modal-centric-header">
-            <h4><i class="fa-solid fa-credit-card me-2"></i>TRANSACTION SETTLEMENT TERMINAL</h4>
+            <h4><i class="fa-solid fa-credit-card me-2"></i>PAYMENT TERMINAL</h4>
             <button class="btn-close-centric" onclick="closeCheckoutModal()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-centric-body" style="display:grid; grid-template-columns: 42% 58%; gap:22px; padding: 24px;">
@@ -237,108 +237,125 @@
                 </div>
             </div>
 
-            <!-- Right Column: Customer Info, B2B Switcher & Dynamic Payment Methods Grid -->
+            <!-- Right Column: Buyer Information Tabs & Dynamic Payment Methods Grid -->
             <div style="display:flex; flex-direction:column; max-height:600px; overflow-y:auto; padding-right:4px;">
                 
-                <!-- Customer Information & Loyalty Telemetry Ledger -->
+                <!-- BUYER INFORMATION TABS & FORM AREA -->
                 <div style="margin-bottom: 16px; background: rgba(0,229,255,0.03); border: 1px solid var(--border-hl); padding: 14px; border-radius: 4px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <span style="font-family:var(--font-hdr); font-size:0.75rem; color:var(--holo-cyan); font-weight:bold;"><i class="fa-solid fa-user-shield me-1"></i> CUSTOMER PROFILE & LOYALTY LEDGER</span>
-                        <select id="selChkVipSelect" class="cyber-select" style="font-size:0.75rem; padding:4px 8px; max-width:230px;" onchange="attachVipFromCheckout(this.value)">
-                            <option value="0">-- Select VIP Customer --</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Live Database Reward Points & Credit Debt Telemetry Deck -->
-                    <div id="vipTelemetryDeck" style="display:none; background:rgba(0,255,102,0.05); border:1px solid rgba(0,255,102,0.3); padding:10px; border-radius:4px; margin-bottom:12px;">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align:center;">
-                            <div>
-                                <div style="font-size:0.65rem; color:#888;">TIER CLASSIFICATION</div>
-                                <div id="telemetryVipTier" style="font-family:var(--font-ui); font-size:0.85rem; font-weight:bold; color:var(--bio-emerald);">VIP Member</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.65rem; color:#888;">CURRENT POINTS</div>
-                                <div id="telemetryVipPoints" style="font-family:var(--font-data); font-size:0.95rem; font-weight:bold; color:var(--holo-cyan);">0 PTS</div>
-                            </div>
-                            <div>
-                                <div style="font-size:0.65rem; color:#888;">DEBT BALANCE</div>
-                                <div id="telemetryVipDebt" style="font-family:var(--font-data); font-size:0.95rem; font-weight:bold; color:var(--amber-warn);">0 ₫</div>
-                            </div>
-                        </div>
-                        <div style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:8px; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.75rem; color:#AAA;"><i class="fa-solid fa-award text-warning me-1"></i> Accruing on this order:</span>
-                            <span id="telemetryAccruingPoints" style="font-family:var(--font-data); font-size:0.85rem; font-weight:bold; color:var(--bio-emerald);">+0 PTS (1x Multiplier)</span>
-                        </div>
-                        <!-- Reward Point Redemption Offset Engine -->
-                        <div style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:8px; padding-top:8px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                <span style="font-size:0.75rem; font-weight:bold; color:var(--holo-cyan);"><i class="fa-solid fa-coins text-warning me-1"></i> REDEEM LOYALTY POINTS:</span>
-                                <span style="font-size:0.7rem; color:#888;">(Rate: 1 PT = 10 ₫ Discount)</span>
-                            </div>
-                            <div style="display:flex; gap:6px;">
-                                <input type="number" id="txtRedeemPoints" class="cyber-input" style="padding:4px 8px; font-size:0.85rem; text-align:right;" placeholder="Enter points..." oninput="handlePointRedemptionInput()" />
-                                <button type="button" class="btn-checkout-execute" style="height:auto; padding:6px 12px; font-size:0.75rem; flex:none; background:var(--holo-cyan); color:#000;" onclick="applyMaxPointsRedemption()">MAX / ALL</button>
-                            </div>
-                            <div id="redemptionFeedback" style="font-size:0.72rem; color:var(--bio-emerald); margin-top:4px; display:none;">
-                                <i class="fa-solid fa-check me-1"></i> Discount Offset: <span id="lblRedeemedValue" style="font-weight:bold;">0 ₫</span>
-                            </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-family:var(--font-hdr); font-size:0.8rem; color:var(--holo-cyan); font-weight:bold;"><i class="fa-solid fa-user-check me-1"></i> BUYER INFORMATION</span>
+                        <div style="display:flex; background:#000; border:1px solid #333; border-radius:3px; overflow:hidden;">
+                            <button type="button" id="tabBuyerPersonal" class="cart-mode-btn active" style="padding:6px 12px; font-size:0.75rem;" onclick="switchBuyerTab('PERSONAL')"><i class="fa-solid fa-user me-1"></i> Personal Information</button>
+                            <button type="button" id="tabBuyerBusiness" class="cart-mode-btn" style="padding:6px 12px; font-size:0.75rem;" onclick="switchBuyerTab('BUSINESS')"><i class="fa-solid fa-building me-1"></i> Business Information</button>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                        <div>
-                            <label class="cyber-label">CUSTOMER NAME / BUYER LEGAL NAME</label>
-                            <input type="text" id="txtChkCustomerName" class="cyber-input" placeholder="e.g. Nguyen Van A / B2B Entity" />
+                    <!-- Personal Information Form (B2C) -->
+                    <div id="formPersonalBuyer">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:0.75rem; color:#AAA;">Attach VIP Profile (Optional):</span>
+                            <select id="selChkVipSelect" class="cyber-select" style="font-size:0.75rem; padding:4px 8px; max-width:260px;" onchange="attachVipFromCheckout(this.value)">
+                                <option value="0">-- Select VIP Customer --</option>
+                            </select>
                         </div>
+                        <!-- Telemetry Deck -->
+                        <div id="vipTelemetryDeck" style="display:none; background:rgba(0,255,102,0.05); border:1px solid rgba(0,255,102,0.3); padding:10px; border-radius:4px; margin-bottom:10px;">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align:center;">
+                                <div><div style="font-size:0.65rem; color:#888;">TIER CLASSIFICATION</div><div id="telemetryVipTier" style="font-family:var(--font-ui); font-size:0.85rem; font-weight:bold; color:var(--bio-emerald);">VIP Member</div></div>
+                                <div><div style="font-size:0.65rem; color:#888;">CURRENT POINTS</div><div id="telemetryVipPoints" style="font-family:var(--font-data); font-size:0.95rem; font-weight:bold; color:var(--holo-cyan);">0 PTS</div></div>
+                                <div><div style="font-size:0.65rem; color:#888;">DEBT BALANCE</div><div id="telemetryVipDebt" style="font-family:var(--font-data); font-size:0.95rem; font-weight:bold; color:var(--amber-warn);">0 ₫</div></div>
+                            </div>
+                            <div style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:8px; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:0.75rem; color:#AAA;"><i class="fa-solid fa-award text-warning me-1"></i> Accruing on this order:</span>
+                                <span id="telemetryAccruingPoints" style="font-family:var(--font-data); font-size:0.85rem; font-weight:bold; color:var(--bio-emerald);">+0 PTS (1x Multiplier)</span>
+                            </div>
+                            <!-- Reward Point Redemption -->
+                            <div style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:8px; padding-top:8px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span style="font-size:0.75rem; font-weight:bold; color:var(--holo-cyan);"><i class="fa-solid fa-coins text-warning me-1"></i> REDEEM LOYALTY POINTS:</span>
+                                    <span style="font-size:0.7rem; color:#888;">(Rate: 1 PT = 10 ₫ Discount)</span>
+                                </div>
+                                <div style="display:flex; gap:6px;">
+                                    <input type="number" id="txtRedeemPoints" class="cyber-input" style="padding:4px 8px; font-size:0.85rem; text-align:right;" placeholder="Enter points..." oninput="handlePointRedemptionInput()" />
+                                    <button type="button" class="btn-checkout-execute" style="height:auto; padding:6px 12px; font-size:0.75rem; flex:none; background:var(--holo-cyan); color:#000;" onclick="applyMaxPointsRedemption()">MAX / ALL</button>
+                                </div>
+                                <div id="redemptionFeedback" style="font-size:0.72rem; color:var(--bio-emerald); margin-top:4px; display:none;">
+                                    <i class="fa-solid fa-check me-1"></i> Discount Offset: <span id="lblRedeemedValue" style="font-weight:bold;">0 ₫</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Line 1: 1 full line (Buyer Name) -->
+                        <div style="margin-bottom:8px;">
+                            <label class="cyber-label">BUYER NAME (FULL LEGAL / CONSUMER NAME)</label>
+                            <input type="text" id="txtChkCustomerName" class="cyber-input" placeholder="e.g. Nguyen Van A" />
+                        </div>
+                        <!-- Line 2: 1/2 line (Phone Number) + 1/2 line (Email Address) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                            <div>
+                                <label class="cyber-label">PHONE / MOBILE NUMBER</label>
+                                <input type="text" id="txtChkCustomerPhone" class="cyber-input" placeholder="0909xxxxxx" />
+                            </div>
+                            <div>
+                                <label class="cyber-label">EMAIL ADDRESS</label>
+                                <input type="email" id="txtChkCustomerEmail" class="cyber-input" placeholder="buyer@example.com" />
+                            </div>
+                        </div>
+                        <!-- Line 3: 1/2 line (Personal ID / CCCD) + 1/2 line (Bank Account) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                            <div>
+                                <label class="cyber-label">PERSONAL ID (CCCD / NATIONAL ID)</label>
+                                <input type="text" id="txtChkCustomerCccd" class="cyber-input" placeholder="National ID number" />
+                            </div>
+                            <div>
+                                <label class="cyber-label">BANK ACCOUNT / PAYOUT REF</label>
+                                <input type="text" id="txtChkCustomerBank" class="cyber-input" placeholder="Bank Account Number" />
+                            </div>
+                        </div>
+                        <!-- Line 4: 1 full line (Billing Address & Notes) -->
                         <div>
-                            <label class="cyber-label">PHONE / MOBILE NUMBER</label>
-                            <input type="text" id="txtChkCustomerPhone" class="cyber-input" placeholder="0909xxxxxx" />
+                            <label class="cyber-label">BILLING ADDRESS & NOTES</label>
+                            <input type="text" id="txtChkCustomerAddress" class="cyber-input" placeholder="Registered residence or billing address" />
                         </div>
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <div>
-                            <label class="cyber-label">EMAIL ADDRESS</label>
-                            <input type="email" id="txtChkCustomerEmail" class="cyber-input" placeholder="client@company.com" />
+
+                    <!-- Business Information Form (B2B Corporate) -->
+                    <div id="formBusinessBuyer" style="display:none;">
+                        <!-- Line 1: 1 full line (Company Name *) -->
+                        <div style="margin-bottom:8px;">
+                            <label class="cyber-label" style="color:var(--amber-warn);">COMPANY NAME (* REQUIRED FOR B2B TAX INVOICE)</label>
+                            <input type="text" id="txtB2bLegalName" class="cyber-input" style="border-color:var(--amber-warn);" placeholder="e.g. DIGIPOSE SOLUTIONS JOINT STOCK COMPANY" />
                         </div>
+                        <!-- Line 2: 1/2 line (Tax Code) + 1/2 line (Accounting Email) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                            <div>
+                                <label class="cyber-label">TAX IDENTIFICATION CODE (MST)</label>
+                                <input type="text" id="txtB2bTaxCode" class="cyber-input" placeholder="0312345678" />
+                            </div>
+                            <div>
+                                <label class="cyber-label">ACCOUNTING EMAIL</label>
+                                <input type="email" id="txtB2bEmail" class="cyber-input" placeholder="e-invoice@company.vn" />
+                            </div>
+                        </div>
+                        <!-- Line 3: 1/2 line (Budget Code) + 1/2 line (Bank Account) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+                            <div>
+                                <label class="cyber-label">BUDGET CODE / MÃ ĐVQHNS</label>
+                                <input type="text" id="txtB2bBudgetCode" class="cyber-input" placeholder="Treasury budget accounting code" />
+                            </div>
+                            <div>
+                                <label class="cyber-label">CORPORATE BANK ACCOUNT</label>
+                                <input type="text" id="txtB2bBankAccount" class="cyber-input" placeholder="Account No - Bank Name" />
+                            </div>
+                        </div>
+                        <!-- Line 4: 1 full line (Address) -->
                         <div>
-                            <label class="cyber-label">CCCD / NATIONAL ID / BILLING ADDRESS</label>
-                            <input type="text" id="txtChkCustomerAddress" class="cyber-input" placeholder="Registered billing address or ID No" />
+                            <label class="cyber-label">REGISTERED CORPORATE ADDRESS</label>
+                            <input type="text" id="txtB2bAddress" class="cyber-input" placeholder="Headquarters or registered fiscal office address" />
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-bottom:16px;">
-                    <label class="cyber-label">INVOICE DOCUMENT NATURE (B2B CORPORATE TOGGLE):</label>
-                    <div style="display:flex; background:#000; border:1px solid #333; border-radius:4px; overflow:hidden;">
-                        <button type="button" id="btnDocRetail" class="cart-mode-btn active" style="padding:12px; border-radius:0;" onclick="switchDocType('POS_RETAIL')"><i class="fa-solid fa-receipt me-2"></i> [INDIVIDUAL / RETAIL RECEIPT]</button>
-                        <button type="button" id="btnDocB2b" class="cart-mode-btn" style="padding:12px; border-radius:0;" onclick="switchDocType('B2B_INVOICE')"><i class="fa-solid fa-file-invoice-dollar me-2"></i> [CORPORATE / B2B TAX INVOICE]</button>
-                    </div>
-                </div>
-
-                <!-- B2B Fiscal Information Form -->
-                <div id="b2bFormArea" style="display:none; background:rgba(0,0,0,0.5); border:1px solid var(--amber-warn); padding:14px; border-radius:4px; margin-bottom:16px;">
-                    <div style="font-family:var(--font-hdr); font-size:0.75rem; color:var(--amber-warn); margin-bottom:10px;"><i class="fa-solid fa-building me-1"></i> CORPORATE FISCAL BILLING DATA</div>
-                    <div style="margin-bottom:10px;">
-                        <label class="cyber-label">COMPANY LEGAL NAME (* REQUIRED)</label>
-                        <input type="text" id="txtB2bLegalName" class="cyber-input" placeholder="e.g. DIGIPOSE SOLUTIONS CORP" />
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                        <div>
-                            <label class="cyber-label">TAX IDENTIFICATION CODE </label>
-                            <input type="text" id="txtB2bTaxCode" class="cyber-input" placeholder="0312345678" />
-                        </div>
-                        <div>
-                            <label class="cyber-label">ACCOUNTING EMAIL</label>
-                            <input type="email" id="txtB2bEmail" class="cyber-input" placeholder="invoice@company.vn" />
-                        </div>
-                    </div>
-                    <div>
-                        <label class="cyber-label">REGISTERED CORPORATE ADDRESS</label>
-                        <input type="text" id="txtB2bAddress" class="cyber-input" placeholder="Floor 10, Innovation Building, HCMC" />
-                    </div>
-                </div>
-
-                <label class="cyber-label">SELECT SETTLEMENT METHOD (LIVE DATABASE REPOSITORY):</label>
+                <label class="cyber-label">SELECT SETTLEMENT METHOD (ONLY 1 ALLOWED - LIVE DATABASE REPOSITORY):</label>
                 <div class="payment-methods-grid" id="dynamicPaymentGrid">
                     <!-- Dynamically injected real PaymentMethod records from Database -->
                 </div>
@@ -355,17 +372,17 @@
 
 <!-- 6. RECEIPT PREVIEW / RE-PRINT MODAL -->
 <div id="modalReceipt" class="modal-centric-backdrop">
-    <div class="modal-centric-box" style="max-width: 480px;">
+    <div class="modal-centric-box" style="max-width: 960px; width: 95%;">
         <div class="modal-centric-header">
             <h4><i class="fa-solid fa-file-lines me-2"></i>TRANSACTION RECEIPT LEDGER</h4>
             <button class="btn-close-centric" onclick="closeReceiptModal()"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="modal-centric-body" style="background:#FFF; color:#000; font-family:'Roboto Mono', monospace; padding: 24px; max-height: 60vh; overflow-y: auto;" id="receiptPaperArea">
+        <div class="modal-centric-body" style="background:#FFF; color:#000; font-family:'Roboto Mono', monospace; padding: 36px; max-height: 75vh; overflow-y: auto;" id="receiptPaperArea">
             <!-- Receipt Paper Injected Here -->
         </div>
-        <div class="modal-centric-footer">
-            <button type="button" class="btn" style="background:#000; border:1px solid #444; color:#888; font-family:var(--font-hdr);" onclick="closeReceiptModal()">CLOSE</button>
-            <button type="button" class="btn-checkout-execute" style="height:42px; font-size:0.85rem; flex:none; padding:0 24px;" onclick="printActiveReceipt()"><i class="fa-solid fa-print me-2"></i> PRINT RECEIPT</button>
+        <div class="modal-centric-footer" style="justify-content: flex-end; gap: 12px;">
+            <button type="button" class="btn" style="background:#000; border:1px solid #444; color:#888; font-family:var(--font-hdr); height:42px; padding:0 24px;" onclick="closeReceiptModal()">CLOSE</button>
+            <button type="button" class="btn-checkout-execute" style="height:42px; font-size:0.9rem; flex:none; padding:0 28px; background:var(--bio-emerald); color:#000; font-weight:bold;" onclick="printActiveReceipt()"><i class="fa-solid fa-print me-2"></i> PRINT / EXPORT PDF</button>
         </div>
     </div>
 </div>
@@ -780,18 +797,18 @@
             if (isOpen && shiftId > 0) {
                 // Active online shift -> Action button represents Next Action: CLOSE SHIFT (orange-black style)
                 btn.html(`<i class="fa-solid fa-lock me-1"></i> CLOSE SHIFT`);
-                btn.css({ background: "#000", borderColor: "var(--amber-warn)", color: "var(--amber-warn)", fontWeight: "bold" });
-                if (btnModal.length) btnModal.html(`<i class="fa-solid fa-lock me-2"></i> CLOSE SHIFT`).css({ background: "#000", borderColor: "var(--amber-warn)", color: "var(--amber-warn)", fontWeight: "bold" });
-                if (sideIcon.length) sideIcon.css("color", "#FFB000").removeClass("fa-key fa-lock").addClass("fa-lock-open");
-                if (sideBadge.length) sideBadge.text(`#${shiftId} ON`).css({ background: "#FFB000", color: "#000" });
+                btn.css({ background: "#000000", borderColor: "#FF8C00", color: "#FF8C00", fontWeight: "700" });
+                if (btnModal.length) btnModal.html(`<i class="fa-solid fa-lock me-2"></i> CLOSE SHIFT`).css({ background: "#000000", borderColor: "#FF8C00", color: "#FF8C00", fontWeight: "700" });
+                if (sideIcon.length) sideIcon.css("color", "#FF8C00").removeClass("fa-key fa-lock").addClass("fa-lock-open");
+                if (sideBadge.length) sideBadge.text(`#${shiftId} ON`).css({ background: "#FF8C00", color: "#000000" });
                 if (sideText.length) sideText.text("CLOSE SHIFT");
             } else {
                 // Closed shift -> Action button represents Next Action: OPEN SHIFT (green-black style)
                 btn.html(`<i class="fa-solid fa-key me-1"></i> OPEN SHIFT`);
-                btn.css({ background: "#000", borderColor: "var(--bio-emerald)", color: "var(--bio-emerald)", fontWeight: "bold" });
-                if (btnModal.length) btnModal.html(`<i class="fa-solid fa-key me-2"></i> OPEN SHIFT`).css({ background: "#000", borderColor: "var(--bio-emerald)", color: "var(--bio-emerald)", fontWeight: "bold" });
+                btn.css({ background: "#000000", borderColor: "#00FF66", color: "#00FF66", fontWeight: "700" });
+                if (btnModal.length) btnModal.html(`<i class="fa-solid fa-key me-2"></i> OPEN SHIFT`).css({ background: "#000000", borderColor: "#00FF66", color: "#00FF66", fontWeight: "700" });
                 if (sideIcon.length) sideIcon.css("color", "#00FF66").removeClass("fa-lock-open").addClass("fa-key");
-                if (sideBadge.length) sideBadge.text("LOCKED").css({ background: "#00FF66", color: "#000" });
+                if (sideBadge.length) sideBadge.text("LOCKED").css({ background: "#00FF66", color: "#000000" });
                 if (sideText.length) sideText.text("OPEN SHIFT");
             }
         }
@@ -1571,7 +1588,7 @@
 
         function selectPayMethod(methodId, el) {
             POS_STATE.paymentMethodId = methodId;
-            $(".payment-tile").removeClass("active");
+            $(".pay-option-card").removeClass("active");
             $(el).addClass("active");
         }
 
@@ -1584,17 +1601,24 @@
             }
         }
 
-        function switchDocType(docType) {
-            POS_STATE.docType = docType;
-            if (docType === 'B2B_INVOICE') {
-                $("#btnDocRetail").removeClass("active");
-                $("#btnDocB2b").addClass("active");
-                $("#b2bFormArea").slideDown(200);
+        function switchBuyerTab(tab) {
+            if (tab === 'BUSINESS') {
+                POS_STATE.docType = 'B2B_INVOICE';
+                $("#tabBuyerPersonal").removeClass("active");
+                $("#tabBuyerBusiness").addClass("active");
+                $("#formPersonalBuyer").slideUp(150);
+                $("#formBusinessBuyer").slideDown(150);
             } else {
-                $("#btnDocB2b").removeClass("active");
-                $("#btnDocRetail").addClass("active");
-                $("#b2bFormArea").slideUp(200);
+                POS_STATE.docType = 'POS_RETAIL';
+                $("#tabBuyerBusiness").removeClass("active");
+                $("#tabBuyerPersonal").addClass("active");
+                $("#formBusinessBuyer").slideUp(150);
+                $("#formPersonalBuyer").slideDown(150);
             }
+        }
+
+        function switchDocType(docType) {
+            switchBuyerTab(docType === 'B2B_INVOICE' ? 'BUSINESS' : 'PERSONAL');
         }
 
         function executeCheckoutPaid() {
@@ -1613,6 +1637,7 @@
                 due = getActualDue();
             }
             const idempotencyKey = generateCyberUuid();
+            const isB2B = (POS_STATE.docType === "B2B_INVOICE");
             const payload = {
                 orderId: POS_STATE.activeOrderId,
                 paymentMethodId: POS_STATE.paymentMethodId || 1,
@@ -1620,18 +1645,23 @@
                 redeemedPoints: POS_STATE.redeemedPoints || 0,
                 tenderedAmount: tendered,
                 idempotencyKey: idempotencyKey,
-                docType: POS_STATE.docType,
+                docType: POS_STATE.docType || "POS_RETAIL",
                 counterId: POS_STATE.counterId,
                 warehouseId: POS_STATE.warehouseId,
                 notes: `[Mode: ${POS_STATE.serviceMode}]`,
-                buyerLegalName: $("#txtB2bLegalName").val()?.trim() || $("#txtChkCustomerName").val()?.trim() || "Retail Customer",
+                isB2B: isB2B,
+                companyName: isB2B ? $("#txtB2bLegalName").val()?.trim() : null,
+                budgetCode: isB2B ? $("#txtB2bBudgetCode").val()?.trim() : null,
+                bankAccount: isB2B ? $("#txtB2bBankAccount").val()?.trim() : $("#txtChkCustomerBank").val()?.trim(),
+                buyerLegalName: isB2B ? $("#txtB2bLegalName").val()?.trim() : ($("#txtChkCustomerName").val()?.trim() || "Retail Customer"),
                 buyerPhone: $("#txtChkCustomerPhone").val()?.trim(),
-                buyerEmail: $("#txtB2bEmail").val()?.trim() || $("#txtChkCustomerEmail").val()?.trim(),
-                buyerAddress: $("#txtB2bAddress").val()?.trim() || $("#txtChkCustomerAddress").val()?.trim()
+                buyerCccd: isB2B ? null : $("#txtChkCustomerCccd").val()?.trim(),
+                buyerEmail: isB2B ? $("#txtB2bEmail").val()?.trim() : $("#txtChkCustomerEmail").val()?.trim(),
+                buyerAddress: isB2B ? $("#txtB2bAddress").val()?.trim() : $("#txtChkCustomerAddress").val()?.trim()
             };
-            if (POS_STATE.docType === "B2B_INVOICE") {
+            if (isB2B) {
                 payload.buyerTaxCode = $("#txtB2bTaxCode").val()?.trim();
-                if (!payload.buyerLegalName || !payload.buyerTaxCode) {
+                if (!payload.companyName || !payload.buyerTaxCode) {
                     sysNotify("warning", "MISSING B2B DATA", "Company Legal Name and Tax Identification Code (MST) are strictly required for B2B Corporate Invoices.");
                     return;
                 }
@@ -1685,68 +1715,131 @@
         function showReceiptPreview(data) {
             if (!data) return;
             let itemLines = "";
-            data.items.forEach(it => {
+            const itemsList = data.items || data.Items || [];
+            itemsList.forEach((it, idx) => {
+                const name = it.productName || it.ProductName || "Item";
+                const qty = it.quantity || it.Quantity || 1;
+                const unit = it.unitName || it.UnitName || "Unit";
+                const price = Number(it.unitPrice || it.UnitPrice || 0);
+                const disc = Number(it.discountAmount || it.DiscountAmount || 0);
+                const tax = Number(it.taxAmount || it.TaxAmount || Math.round(price * qty * 0.08));
+                const sub = Number(it.lineTotal || it.LineTotal || (price * qty - disc + tax));
+                const notes = it.notes || it.Notes || "-";
                 itemLines += `
-                <div style="display:flex; justify-content:space-between; margin-bottom: 2px;">
-                    <span>${it.quantity}x ${it.productName}</span>
-                    <span>${Number(it.lineTotal).toLocaleString()} ₫</span>
-                </div>
-                ${it.notes ? `<div style="font-size:0.75em; color:#555; margin-left:12px;">- Note: ${it.notes}</div>` : ""}`;
+                <tr style="border: 1px solid #333; font-size:0.85rem;">
+                    <td style="padding:8px; border: 1px solid #333; text-align:center;">${idx + 1}</td>
+                    <td style="padding:8px; border: 1px solid #333; font-weight:bold;">${name}</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:center;">${qty}</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:center;">${unit}</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:right;">${price.toLocaleString()} ₫</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:right; color:#a00;">${disc > 0 ? "-" + disc.toLocaleString() + " ₫" : "0 ₫"}</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:right;">${tax.toLocaleString()} ₫</td>
+                    <td style="padding:8px; border: 1px solid #333; text-align:right; font-weight:bold;">${sub.toLocaleString()} ₫</td>
+                    <td style="padding:8px; border: 1px solid #333; font-size:0.78rem; color:#444;">${notes}</td>
+                </tr>`;
             });
 
-            const b2bHeader = data.b2b ? `
-                <div style="border-top:1px dashed #000; padding:6px 0; margin:6px 0; font-size:0.85em;">
-                    <div><strong>B2B TAX INVOICE</strong></div>
-                    <div>Entity: ${data.b2b.legalName}</div>
-                    <div>MST / Tax Code: ${data.b2b.taxCode}</div>
+            const b2bTaxCode = data.buyerTaxCode || data.BuyerTaxCode || (data.b2b ? data.b2b.taxCode : null);
+            const b2bEntity = (data.b2b ? data.b2b.legalName : null) || data.customerName || data.CustomerName || "N/A";
+            const b2bHeader = b2bTaxCode ? `
+                <div style="background:#f9f9f9; border: 1px solid #333; border-left:4px solid #000; padding:10px 14px; margin:14px 0; font-size:0.9em; text-align:left;">
+                    <div><strong>CORPORATE TAX INVOICE METADATA (B2B)</strong></div>
+                    <div style="margin-top:4px;">Legal Entity: <span style="font-weight:bold; color:#0066CC;">${b2bEntity}</span> | Tax Code (MST): <strong style="color:#D30000; font-size:1.05em;">${b2bTaxCode}</strong></div>
                 </div>` : "";
 
+            const docNo = data.docNo || data.DocNo || `DOC-POS-01-SH${POS_STATE.shiftId || 1}-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${data.orderId || data.OrderId || '00000'}`;
+            const orderNo = `#ORD-${data.orderId || data.OrderId || POS_STATE.activeOrderId || '10024'}`;
+            const invNo = data.invoiceNumber || data.InvoiceNumber || `INV-${data.orderId || data.OrderId || '00000'}`;
+            const custName = data.vipName || data.customerName || data.CustomerName || (data.b2b ? data.b2b.legalName : "Walk-in Consumer");
+            const payMethod = data.paymentMethod || data.PaymentMethod || "Cash / Electronic Tender";
+            const cashier = data.cashierName || data.CashierName || POS_STATE.userName || "Operator";
+            const shiftRef = `#SH-${data.shiftNumber || data.ShiftNumber || POS_STATE.shiftId || '01'}`;
+            const transDate = new Date(data.processedAt || data.CreatedAt || Date.now()).toLocaleString("vi-VN");
+            
+            const gross = Number(data.grossAmount || data.GrossAmount || data.totalDue || data.TotalAmount || 0);
+            const discTotal = Number(data.discountAmount || data.DiscountAmount || 0);
+            const vatTotal = Number(data.vatAmount || data.TaxAmount || Math.round(gross * 0.08));
+            const totalDue = Number(data.totalDue || data.TotalAmount || gross - discTotal + vatTotal);
+            const tendered = Number(data.tendered || data.TenderedAmount || totalDue);
+            const change = Number(data.change || data.ChangeAmount || Math.max(0, tendered - totalDue));
+
             const paperHtml = `
-                <div style="text-align:center; font-family:'Roboto Mono', monospace; font-size:0.9rem;">
-                    <div style="font-weight:bold; font-size:1.2em;">DigiPOS STATION #${POS_STATE.counterId}</div>
-                    <div>${POS_STATE.tenantName} // ${POS_STATE.warehouseName}</div>
-                    <div>------------------------------------------</div>
-                    <div style="font-weight:bold; margin:6px 0;">RECEIPT: ${data.invoiceNumber} [DOC: ${data.docNo}]</div>
-                    <div>Date: ${new Date(data.processedAt).toLocaleString()}</div>
-                    <div>Service Mode: [${data.serviceMode}] | Cashier: ${POS_STATE.userName}</div>
-                    <div>Customer: ${data.vipName}</div>
+                <div style="font-family:'Roboto Mono', monospace; font-size:0.92rem; color:#000; width:100%; max-width:880px; margin:0 auto; padding: 20px; box-sizing: border-box;">
+                    <div style="text-align:center; margin-bottom:18px;">
+                        <div style="font-weight:bold; font-size:1.6rem; letter-spacing:1px; margin-bottom:6px;">DIGIPOSE TRANSACTION RECEIPT LEDGER</div>
+                        <div style="font-size:1.0rem; font-weight:bold; color:#333;">${POS_STATE.tenantName || 'DigiPOS Hub'} // Station #${POS_STATE.counterId || '01'} (${POS_STATE.warehouseName || 'Main Warehouse'})</div>
+                        <div style="border-bottom:2px solid #000; margin:12px 0;"></div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:0.88rem; margin-bottom:16px; background:#fcfcfc; padding:14px; border:1px solid #333; border-radius:2px;">
+                        <div><strong>Doc No:</strong> ${docNo}</div>
+                        <div><strong>Order No:</strong> <span style="color:#0066CC; font-weight:bold;">${orderNo}</span></div>
+                        <div><strong>Invoice No:</strong> ${invNo}</div>
+                        <div><strong>Transaction Date:</strong> ${transDate}</div>
+                        <div><strong>Customer:</strong> ${custName}</div>
+                        <div><strong>Payment Method:</strong> ${payMethod}</div>
+                        <div><strong>Cashier Operator:</strong> ${cashier}</div>
+                        <div><strong>Work Shift:</strong> ${shiftRef}</div>
+                    </div>
                     ${b2bHeader}
-                    <div>------------------------------------------</div>
-                    <div style="text-align:left; margin: 10px 0;">
-                        ${itemLines}
+                    
+                    <table style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.85rem; border:2px solid #000;">
+                        <thead>
+                            <tr style="background:#000; color:#FFF; text-align:left;">
+                                <th style="padding:8px; border:1px solid #444; text-align:center; width:40px;">#</th>
+                                <th style="padding:8px; border:1px solid #444;">PRODUCT NAME</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:center; width:55px;">QTY</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:center; width:65px;">UNIT</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:right; width:95px;">UNIT PRICE</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:right; width:90px;">DISCOUNT</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:right; width:80px;">TAX</th>
+                                <th style="padding:8px; border:1px solid #444; text-align:right; width:110px;">SUBTOTAL</th>
+                                <th style="padding:8px; border:1px solid #444;">NOTES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemLines}
+                        </tbody>
+                    </table>
+                    
+                    <div style="border-top:2px solid #000; padding-top:14px; margin-top:14px; display:flex; justify-content:flex-end;">
+                        <div style="width:360px; font-size:0.95rem; border:1px solid #333; padding:12px; background:#fafafa;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <span>GROSS SUBTOTAL:</span>
+                                <strong>${gross.toLocaleString()} ₫</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <span>TOTAL DISCOUNT:</span>
+                                <strong style="color:#a00;">-${discTotal.toLocaleString()} ₫</strong>
+                            </div>
+                            ${data.pointsDiscount > 0 ? `
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#555;">
+                                <span>LOYALTY REDEEM:</span>
+                                <strong>-${Number(data.pointsDiscount).toLocaleString()} ₫</strong>
+                            </div>` : ""}
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <span>VAT TAX AMOUNT:</span>
+                                <strong>+${vatTotal.toLocaleString()} ₫</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.25rem; border-top:2px solid #000; border-bottom:2px solid #000; padding:8px 4px; margin:8px 0; background:#eee;">
+                                <span>TOTAL PAYABLE:</span>
+                                <span style="color:#007700;">${totalDue.toLocaleString()} ₫</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                                <span>Tendered Received:</span>
+                                <strong>${tendered.toLocaleString()} ₫</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                                <span>Change Returned:</span>
+                                <strong>${change.toLocaleString()} ₫</strong>
+                            </div>
+                        </div>
                     </div>
-                    <div>------------------------------------------</div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>GROSS SUBTOTAL:</span>
-                        <span>${Number(data.grossAmount || data.totalDue).toLocaleString()} ₫</span>
+                    
+                    <div style="border-top:1px dashed #777; padding-top:12px; margin-top:24px; text-align:center; font-size:0.8rem; color:#444;">
+                        <div style="font-weight:bold; letter-spacing:0.5px;">FISCAL INTEGRITY VERIFIED // SHA-256 SECURED BY DIGIPOSE CORE</div>
+                        <div style="margin-top:4px;">Thank you for your valued business and continuous partnership!</div>
                     </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>DISCOUNT / PROMO:</span>
-                        <span>-${Number(data.discountAmount || 0).toLocaleString()} ₫</span>
-                    </div>
-                    ${data.pointsDiscount > 0 ? `
-                    <div style="display:flex; justify-content:space-between; color:#444;">
-                        <span>LOYALTY REDEEM (${Number(data.redeemedPoints).toLocaleString()} PTS):</span>
-                        <span>-${Number(data.pointsDiscount).toLocaleString()} ₫</span>
-                    </div>` : ""}
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>VAT TAX (INCL):</span>
-                        <span>+${Number(data.vatAmount || Math.round((data.grossAmount || data.totalDue)*0.0909)).toLocaleString()} ₫</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1em; border-top:1px dashed #333; padding-top:4px; margin-top:4px;">
-                        <span>TOTAL AMOUNT DUE:</span>
-                        <span>${Number(data.totalDue).toLocaleString()} ₫</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:4px;">
-                        <span>Tendered:</span>
-                        <span>${Number(data.tendered).toLocaleString()} ₫</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Change Returned:</span>
-                        <span>${Number(data.change).toLocaleString()} ₫</span>
-                    </div>
-                    <div>------------------------------------------</div>
-                    <div style="margin-top:10px; font-size:0.8em;">THANK YOU FOR YOUR BUSINESS! // SHA-256 SECURED</div>
                 </div>`;
 
             $("#receiptPaperArea").html(paperHtml);
@@ -1756,43 +1849,79 @@
         function closeReceiptModal() { $("#modalReceipt").hide(); }
 
         function printActiveReceipt() {
-            const w = window.open('', '_blank', 'width=420,height=650');
-            w.document.write(`<html><head><title>Print Receipt</title><style>body { font-family: monospace; padding: 15px; color: #000; }</style></head><body>`);
+            const w = window.open('', '_blank', 'width=1050,height=880,scrollbars=yes');
+            w.document.write(`<!DOCTYPE html><html><head><title>DigiPOSE Fiscal Receipt & PDF Export</title><style>
+                @@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+                @@media print {
+                    .no-print { display: none !important; }
+                    body { padding: 0 !important; margin: 0 !important; background: #FFF !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .receipt-paper { border: none !important; box-shadow: none !important; max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 10px !important; }
+                }
+                body { font-family: 'Roboto Mono', monospace; padding: 25px; color: #000; background: #2b2d30; margin: 0; display: flex; flex-direction: column; align-items: center; }
+                .toolbar { width: 100%; max-width: 920px; background: #0c0f12; border: 1px solid #00E5FF; padding: 14px 24px; border-radius: 4px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); color: #FFF; box-sizing: border-box; }
+                .toolbar button { display: inline-flex; align-items: center; justify-content: center; height: 38px; padding: 0 16px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: #00FF66; background: #000; border: none; border-top: 2px solid #00FF66; border-bottom: 2px solid #00FF66; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); transition: all 0.2s ease; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 5px rgba(0, 255, 102, 0.2); margin: 0; }
+                .toolbar button:hover { background: rgba(0, 255, 102, 0.15); box-shadow: 0 0 15px rgba(0, 255, 102, 0.7); color: #FFF; transform: translateY(-1px); }
+                .toolbar .btn-close { color: #FF3333; border-top: 2px solid #FF3333; border-bottom: 2px solid #FF3333; box-shadow: 0 0 5px rgba(255, 51, 51, 0.2); }
+                .toolbar .btn-close:hover { background: rgba(255, 51, 51, 0.15); box-shadow: 0 0 15px rgba(255, 51, 51, 0.7); color: #FFF; }
+                table, th, td { border: 1px solid #222 !important; border-collapse: collapse !important; }
+                th { background-color: #000 !important; color: #FFF !important; }
+                .receipt-paper { background: #FFF; padding: 40px; border-radius: 2px; box-shadow: 0 4px 25px rgba(0,0,0,0.5); max-width: 920px; width: 100%; box-sizing: border-box; margin-bottom: 40px; }
+            </style></head><body>`);
+            w.document.write(`
+                <div class="toolbar no-print">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-weight:bold; letter-spacing:1px; color:#00E5FF; font-size:1.1rem;">DIGIPOSE FISCAL PDF STUDIO</span>
+                        <span style="background:#00E5FF; color:#000; padding:2px 8px; font-weight:bold; font-size:0.75rem; border-radius:2px;">WEB EXPORT READY</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button onclick="window.print()">🖨️ PRINT / SAVE AS PDF</button>
+                        <button class="btn-close" onclick="window.close()">✖ CLOSE STUDIO</button>
+                    </div>
+                </div>
+                <div class="receipt-paper">
+            `);
             w.document.write($("#receiptPaperArea").html());
-            w.document.write(`\x3C/body></html>`);
+            w.document.write(`</div>\x3C/body></html>`);
             w.document.close();
             w.focus();
-            setTimeout(() => { w.print(); w.close(); closeReceiptModal(); }, 300);
+            setTimeout(() => { w.print(); }, 500);
         }
 
         // --- ORDER TODAY 100% VIEW ENGINE ---
         function loadOrdersToday() {
             const filter = $("#txtOrderFilter").val()?.trim() || "";
             let url = `/api/v1/POS/orders/today?tenantId=${POS_STATE.tenantId}`;
-            if (POS_STATE.shiftId > 0) url += `&shiftId=${POS_STATE.shiftId}`;
+            if (POS_STATE.counterId > 0) {
+                url += `&counterId=${POS_STATE.counterId}`;
+            } else if (POS_STATE.shiftId > 0) {
+                url += `&shiftId=${POS_STATE.shiftId}`;
+            }
             if (filter) url += `&invoiceNo=${encodeURIComponent(filter)}`;
 
             $.get(url, function(data) {
                 const list = data.orders || [];
                 const tbody = $("#todayOrdersTableBody");
                 if (list.length === 0) {
-                    tbody.html(`<tr><td colspan="8" style="text-align:center; padding:30px; color:#666;">NO TRANSACTIONS RECORDED FOR CURRENT SHIFT / TODAY YET.</td></tr>`);
+                    tbody.html(`<tr><td colspan="8" style="text-align:center; padding:30px; color:#666;">NO TRANSACTIONS RECORDED FOR CURRENT COUNTER / TODAY YET.</td></tr>`);
                     return;
                 }
                 let html = "";
                 list.forEach(o => {
-                    const statusBadge = o.statusId === 8 ? `<span style="color:var(--bio-emerald);"><i class="fa-solid fa-circle-check me-1"></i>COMPLETED</span>` : `<span style="color:var(--amber-warn);"><i class="fa-solid fa-hourglass-half me-1"></i>PENDING</span>`;
+                    const sId = o.statusId || o.StatusId || 0;
+                    const statusBadge = sId === 8 ? `<span style="color:var(--bio-emerald); font-weight:bold;"><i class="fa-solid fa-circle-check me-1"></i>COMPLETED</span>` : (sId === 1 ? `<span style="color:var(--amber-warn);"><i class="fa-solid fa-file-lines me-1"></i>DRAFT</span>` : `<span style="color:var(--amber-warn);"><i class="fa-solid fa-hourglass-half me-1"></i>PENDING</span>`);
+                    const inv = o.invoiceNumber || o.InvoiceNumber || o.invoiceNo || 'ORD-'+o.orderId;
+                    const cust = o.snapshotCustomerName || o.SnapshotCustomerName || o.customerName || 'Walk-in Consumer';
                     html += `
                     <tr>
-                        <td>#${o.orderId}</td>
-                        <td style="font-weight:700; color:var(--holo-cyan);">${o.invoiceNo || 'ORD-'+o.orderId}</td>
-                        <td>${new Date(o.createdAt).toLocaleTimeString()}</td>
-                        <td>${o.customerName || 'Walk-in Consumer'}</td>
-                        <td><span class="filter-chip" style="font-size:0.75rem; padding:2px 8px;">${o.paymentMethod || 'Cash'}</span></td>
-                        <td style="font-family:var(--font-data); font-size:1.4rem; color:var(--bio-emerald); font-weight:bold;">${Number(o.totalAmount).toLocaleString()} ₫</td>
+                        <td>#${o.orderId || o.OrderId}</td>
+                        <td style="font-weight:700; color:var(--holo-cyan);">${inv}</td>
+                        <td>${new Date(o.createdAt || o.CreatedAt).toLocaleTimeString()}</td>
+                        <td>${cust}</td>
+                        <td><span class="filter-chip" style="font-size:0.75rem; padding:2px 8px;">${o.paymentMethod || o.PaymentMethod || 'Cash'}</span></td>
+                        <td style="font-family:var(--font-data); font-size:1.4rem; color:var(--bio-emerald); font-weight:bold;">${Number(o.totalAmount || o.TotalAmount || 0).toLocaleString()} ₫</td>
                         <td>${statusBadge}</td>
                         <td style="text-align:center;">
-                            <button onclick="reprintReceipt(${o.orderId})" class="deck-btn" style="padding:4px 10px; font-size:0.7rem;"><i class="fa-solid fa-print me-1"></i> RE-PRINT</button>
+                            <button onclick="reprintReceipt(${o.orderId || o.OrderId})" class="deck-btn" style="padding:4px 10px; font-size:0.7rem;"><i class="fa-solid fa-print me-1"></i> RE-PRINT</button>
                         </td>
                     </tr>`;
                 });
@@ -1801,10 +1930,42 @@
         }
 
         function reprintReceipt(orderId) {
-            sysNotify("infor", "SPOOL RE-PRINTING", `Initiating thermal spool re-print for Transaction #${orderId}...`);
+            sysNotify("infor", "FETCHING FISCAL RECEIPT", `Retrieving transaction audit ledger #${orderId}...`);
+            $.get(`/api/v1/POS/orders/${orderId}/details`, function(detailData) {
+                if (detailData) {
+                    showReceiptPreview(detailData);
+                    sysNotify("success", "LEDGER READY", `Fiscal transaction receipt #${orderId} loaded into viewing modal.`);
+                }
+            }).fail(function() {
+                sysNotify("error", "RECEIPT LOAD FAILED", `Could not read transaction ledger #${orderId} from database repository.`);
+            });
         }
 
         // --- EXECUTIVE ANALYTICS 100% VIEW ENGINE ---
+        function setQuickDateFilter(range, el) {
+            $(".filter-chip").removeClass("active");
+            $(el).addClass("active");
+            const now = new Date();
+            const fmt = d => d.toISOString().split('T')[0];
+            if (range === 'today') {
+                $("#dateFrom").val(fmt(now));
+                $("#dateTo").val(fmt(now));
+            } else if (range === 'week') {
+                const day = now.getDay() || 7;
+                const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (day - 1));
+                $("#dateFrom").val(fmt(start));
+                $("#dateTo").val(fmt(now));
+            } else if (range === 'month') {
+                const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                $("#dateFrom").val(fmt(start));
+                $("#dateTo").val(fmt(now));
+            } else {
+                $("#dateFrom").val('');
+                $("#dateTo").val('');
+            }
+            loadAnalyticsData();
+        }
+
         function loadAnalyticsData() {
             const fDate = $("#dateFrom").val();
             const tDate = $("#dateTo").val();
@@ -1884,6 +2045,29 @@
                         scales: { x: { beginAtZero: true, grid: { color: "#161D24" } }, y: { grid: { color: "#161D24" } } }
                     }
                 });
+
+                const ctxCustType = document.getElementById("chartCustomerType")?.getContext("2d");
+                if (ctxCustType && res.customerTypeBreakdown) {
+                    POS_STATE.chartInstances["custType"] = new Chart(ctxCustType, {
+                        type: "pie",
+                        data: {
+                            labels: res.customerTypeBreakdown.map(x => `${x.customerType || 'Walk-in'} (${Number(x.revenue || 0).toLocaleString()} ₫)`),
+                            datasets: [{
+                                data: res.customerTypeBreakdown.map(x => x.revenue || 0),
+                                backgroundColor: ["rgba(0, 255, 102, 0.75)", "rgba(0, 229, 255, 0.75)", "rgba(255, 176, 0, 0.75)"],
+                                borderColor: ["#00FF66", "#00E5FF", "#FFB000"],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } }
+                            }
+                        }
+                    });
+                }
 
                 const ctxTop = document.getElementById("chartTopProducts").getContext("2d");
                 POS_STATE.chartInstances["top"] = new Chart(ctxTop, {

@@ -1,4 +1,4 @@
-﻿using DigiPOSE.Models;
+using DigiPOSE.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace DigiPOSE.Areas.Administrator.Controllers
 {
     [Area("Administrator")]
-    [Authorize]
+    [Authorize(Roles = "Super Admin, Administrator, Tenant Manager")]
     public class HomeController : Controller
     {
         private readonly DigiPoseDbContext _context;

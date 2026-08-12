@@ -25,7 +25,7 @@ namespace DigiPOSE.Services.Background
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation(">>> [WARMUP_INIT]: Synchronizing physical SQL database inventory into RAM cache O(1)...");
+            _logger.LogInformation(">>> [WARMUP_INIT]: Synchronizing physical SQL database inventory into RAM cache...");
             
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<DigiPoseDbContext>();

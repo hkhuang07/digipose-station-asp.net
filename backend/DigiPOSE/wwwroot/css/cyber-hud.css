@@ -39,7 +39,7 @@
     --font-header: 'Orbitron', 'Rajdhani', sans-serif;
     --font-mono: 'Roboto Mono', 'VT323', monospace;
     
-    --sidebar-width: 210px;
+    --sidebar-width: 275px;
     --navbar-height: 64px;
 }
 
@@ -506,6 +506,15 @@ body.sidebar-collapsed .hud-main-content {
     position: relative;
     background: #000000 !important;
     background-color: #000000 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+}
+
+.hud-menu-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block;
 }
 
 .hud-menu-link i {

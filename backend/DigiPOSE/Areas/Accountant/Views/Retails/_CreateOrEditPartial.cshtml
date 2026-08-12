@@ -1,0 +1,156 @@
+@model DigiPOSE.Models.Retail
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-file-invoice text-cyan me-2"></i> @(Model.RetailId == 0 ? "CREATE NEW" : "EDIT") RETAIL DOCUMENT</h5>
+        <button type="button" class="btn-close-cyber" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form class="ajax-modal-form" asp-action="@(Model.RetailId == 0 ? "Create" : "Edit")" asp-controller="Retails">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="RetailId" />
+        <input type="hidden" asp-for="IdempotencyKey" />
+        <div class="modal-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="OrderId" class="form-cyber-label">@Html.DisplayNameFor(m => m.OrderId) <span style="color:#FF3333;">*</span></label>
+                    <select asp-for="OrderId" asp-items="ViewBag.Orders" class="form-control form-cyber-control">
+                        <option value="">-- Select Associated Order --</option>
+                    </select>
+                    <span asp-validation-for="OrderId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DocType" class="form-cyber-label">@Html.DisplayNameFor(m => m.DocType) <span style="color:#FF3333;">*</span></label>
+                    <select asp-for="DocType" class="form-control form-cyber-control">
+                        <option value="POS_RETAIL">POS_RETAIL (Standard B2C Walk-in)</option>
+                        <option value="B2B_INVOICE">B2B_INVOICE (Corporate VAT Voucher)</option>
+                    </select>
+                    <span asp-validation-for="DocType" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DocNo" class="form-cyber-label">@Html.DisplayNameFor(m => m.DocNo) <span style="color:#FF3333;">*</span></label>
+                    <input asp-for="DocNo" class="form-control form-cyber-control" />
+                    <span asp-validation-for="DocNo" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="RetailNo" class="form-cyber-label"></label>
+                    <input asp-for="RetailNo" class="form-control form-cyber-control" />
+                    <span asp-validation-for="RetailNo" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TenantId" class="form-cyber-label">@Html.DisplayNameFor(m => m.TenantId) <span style="color:#FF3333;">*</span></label>
+                    <select asp-for="TenantId" asp-items="ViewBag.Tenants" class="form-control form-cyber-control"></select>
+                    <span asp-validation-for="TenantId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CounterId" class="form-cyber-label"></label>
+                    <select asp-for="CounterId" asp-items="ViewBag.Counters" class="form-control form-cyber-control">
+                        <option value="">-- None --</option>
+                    </select>
+                    <span asp-validation-for="CounterId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="ShiftId" class="form-cyber-label">@Html.DisplayNameFor(m => m.ShiftId) <span style="color:#FF3333;">*</span></label>
+                    <select asp-for="ShiftId" asp-items="ViewBag.Shifts" class="form-control form-cyber-control"></select>
+                    <span asp-validation-for="ShiftId" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="UserId" class="form-cyber-label">@Html.DisplayNameFor(m => m.UserId) <span style="color:#FF3333;">*</span></label>
+                    <select asp-for="UserId" asp-items="ViewBag.Users" class="form-control form-cyber-control"></select>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CustomerId" class="form-cyber-label"></label>
+                    <select asp-for="CustomerId" asp-items="ViewBag.Customers" class="form-control form-cyber-control">
+                        <option value="">-- Walk-in Consumer --</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PaymentMethodId" class="form-cyber-label"></label>
+                    <select asp-for="PaymentMethodId" asp-items="ViewBag.PaymentMethods" class="form-control form-cyber-control">
+                        <option value="">-- Select Payment Method --</option>
+                    </select>
+                    <span asp-validation-for="PaymentMethodId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="BuyerLegalName" class="form-cyber-label"></label>
+                    <input asp-for="BuyerLegalName" class="form-control form-cyber-control" placeholder="Corporate Entity or Customer Name" />
+                    <span asp-validation-for="BuyerLegalName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BuyerTaxCode" class="form-cyber-label"></label>
+                    <input asp-for="BuyerTaxCode" class="form-control form-cyber-control" placeholder="MST / Tax ID Number" />
+                    <span asp-validation-for="BuyerTaxCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BuyerAddress" class="form-cyber-label"></label>
+                    <input asp-for="BuyerAddress" class="form-control form-cyber-control" />
+                    <span asp-validation-for="BuyerAddress" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="BuyerEmail" class="form-cyber-label"></label>
+                    <input asp-for="BuyerEmail" type="email" class="form-control form-cyber-control" />
+                    <span asp-validation-for="BuyerEmail" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="TotalQuantity" class="form-cyber-label"></label>
+                    <input asp-for="TotalQuantity" type="number" step="1" class="form-control form-cyber-control" />
+                    <span asp-validation-for="TotalQuantity" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="GrossAmount" class="form-cyber-label"></label>
+                    <input asp-for="GrossAmount" type="number" step="0.01" class="form-control form-cyber-control" />
+                    <span asp-validation-for="GrossAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="DiscountAmount" class="form-cyber-label"></label>
+                    <input asp-for="DiscountAmount" type="number" step="0.01" class="form-control form-cyber-control" />
+                    <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="VatAmount" class="form-cyber-label"></label>
+                    <input asp-for="VatAmount" type="number" step="0.01" class="form-control form-cyber-control" />
+                    <span asp-validation-for="VatAmount" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="TotalAmount" class="form-cyber-label">@Html.DisplayNameFor(m => m.TotalAmount) <span style="color:#00E5FF;">(Payable)</span></label>
+                    <input asp-for="TotalAmount" type="number" step="0.01" class="form-control form-cyber-control" style="font-weight:bold; color:#00FF66;" />
+                    <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TenderedAmount" class="form-cyber-label"></label>
+                    <input asp-for="TenderedAmount" type="number" step="0.01" class="form-control form-cyber-control" />
+                    <span asp-validation-for="TenderedAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ChangeAmount" class="form-cyber-label"></label>
+                    <input asp-for="ChangeAmount" type="number" step="0.01" class="form-control form-cyber-control" />
+                    <span asp-validation-for="ChangeAmount" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-check mt-3">
+                        <input asp-for="IsEInvoiceReported" class="form-check-input" type="checkbox" style="accent-color:#00E5FF;" />
+                        <label asp-for="IsEInvoiceReported" class="form-check-label form-cyber-label" style="display:inline-block; margin-left:8px;">
+                            Reported to E-Invoice Gateway
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Notes" class="form-cyber-label"></label>
+                    <input asp-for="Notes" class="form-control form-cyber-control" placeholder="Internal audit remarks" />
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cyber-primary" data-bs-dismiss="modal">CANCEL</button>
+            <button type="submit" class="btn-cyber-success"><i class="fa-solid fa-cloud-arrow-up me-1"></i> SAVE DOCUMENT</button>
+        </div>
+    </form>
+</div>

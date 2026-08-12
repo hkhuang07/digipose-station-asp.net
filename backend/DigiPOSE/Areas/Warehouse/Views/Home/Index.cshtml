@@ -1,0 +1,87 @@
+@model IEnumerable<DigiPOSE.Models.StockVoucher>
+@{
+    ViewData["Title"] = "Warehouse Logistics & Stock Control Dashboard";
+}
+
+<div class="cyber-panel">
+    <div class="cyber-panel-header">
+        <div class="cyber-panel-title">
+            <i class="fa-solid fa-warehouse"></i> WAREHOUSE LOGISTICS & INVENTORY OPERATIONS
+        </div>
+        <div class="cyber-panel-sub">
+            [STOCK BALANCE ENGINE] // ON-HAND UNITS: <strong style="color:#00FF66;">@ViewBag.TotalInventoryItems</strong> | STOCK VOUCHERS: <strong style="color:#00E5FF;">@ViewBag.TotalStockVouchers</strong>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="hud-module-card" style="background: rgba(10, 10, 10, 0.9); border: 1px solid rgba(0, 255, 102, 0.4); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; height: 140px;">
+                <span style="font-family:'Orbitron'; font-size: 0.75rem; color: #00FF66; text-transform: uppercase;">STOCK ON-HAND UNITS</span>
+                <span style="font-family:'VT323'; font-size: 2.8rem; color: #FFFFFF; text-shadow: 0 0 10px #00FF66;">@ViewBag.TotalInventoryItems</span>
+                <a href="@Url.Action("Index", "ProductInventories", new { area = "Warehouse" })" style="color: #00FF66; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-arrow-right me-1"></i> Inventory Ledger</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="hud-module-card" style="background: rgba(10, 10, 10, 0.9); border: 1px solid rgba(0, 229, 255, 0.4); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; height: 140px;">
+                <span style="font-family:'Orbitron'; font-size: 0.75rem; color: #00E5FF; text-transform: uppercase;">STOCK VOUCHERS</span>
+                <span style="font-family:'VT323'; font-size: 2.8rem; color: #FFFFFF; text-shadow: 0 0 10px #00E5FF;">@ViewBag.TotalStockVouchers</span>
+                <a href="@Url.Action("Index", "StockVouchers", new { area = "Warehouse" })" style="color: #00E5FF; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-arrow-right me-1"></i> Manage Vouchers</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="hud-module-card" style="background: rgba(10, 10, 10, 0.9); border: 1px solid rgba(255, 176, 0, 0.4); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; height: 140px;">
+                <span style="font-family:'Orbitron'; font-size: 0.75rem; color: #FFB000; text-transform: uppercase;">TRANSFERS & AUDITS</span>
+                <span style="font-family:'VT323'; font-size: 2.8rem; color: #FFFFFF; text-shadow: 0 0 10px #FFB000;">@ViewBag.TotalStockTransfers</span>
+                <a href="@Url.Action("Index", "StockTransfers", new { area = "Warehouse" })" style="color: #FFB000; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-arrow-right me-1"></i> Transfer Hub</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="hud-module-card" style="background: rgba(10, 10, 10, 0.9); border: 1px solid rgba(0, 136, 255, 0.4); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; height: 140px;">
+                <span style="font-family:'Orbitron'; font-size: 0.75rem; color: #0088FF; text-transform: uppercase;">REGISTERED SUPPLIERS</span>
+                <span style="font-family:'VT323'; font-size: 2.8rem; color: #FFFFFF; text-shadow: 0 0 10px #0088FF;">@ViewBag.TotalSuppliers</span>
+                <a href="@Url.Action("Index", "Suppliers", new { area = "Warehouse" })" style="color: #0088FF; font-size: 0.8rem; text-decoration: none;"><i class="fa-solid fa-arrow-right me-1"></i> View Suppliers</a>
+            </div>
+        </div>
+    </div>
+
+    <h5 style="font-family:'Orbitron'; color:#00E5FF; font-size:0.95rem; margin-bottom:1rem; text-transform: uppercase; letter-spacing: 1px;">
+        <i class="fa-solid fa-clipboard-list me-2"></i> RECENT STOCK MOVEMENT VOUCHERS
+    </h5>
+    
+    <div class="table-responsive">
+        <table class="table-cyber w-100">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Voucher Code</th>
+                    <th>Voucher Type</th>
+                    <th>Supplier Entity</th>
+                    <th>Status</th>
+                    <th>Created Timestamp</th>
+                    <th style="text-align: right;">Total Value (₫)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="font-family:'Roboto Mono'; color:var(--primary-cyan); font-weight:bold;">@item.VoucherCode</td>
+                            <td style="font-weight: bold; color: #FFF;">@item.VoucherType</td>
+                            <td style="color:#A0C0CE;">@(item.Supplier?.SupplierName ?? "Internal Operation")</td>
+                            <td style="color:#AAA; font-size:0.85rem;"><span class="badge bg-secondary">@item.Status.ToString()</span></td>
+                            <td style="font-family:'Roboto Mono'; font-size:0.85rem;">@item.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td style="text-align:right; font-family:'VT323'; font-size:1.2rem; color:#00FF66;">@item.TotalValue.ToString("N0")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted" style="padding: 2rem;">No recent stock vouchers logged in operational buffer.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-# DigiPOSE Station - E-commerce Store & POS Management Platform
+# DigiPOSE Station - Enterprise B2B Retail & POS Management Platform
 **Official Architecture Overview & Feature Specification Manual (v1.0.0)**
 
 DigiPOSE Station is a robust, high-performance Point of Sale (POS), Enterprise Resource Planning (ERP), and Online E-Commerce platform engineered for scalable retail operations and B2B cloud SaaS distribution. The platform consolidates real-time in-store cashier terminal capabilities, an interactive online storefront, and an administrative backoffice CMS into a unified, low-latency enterprise application server.

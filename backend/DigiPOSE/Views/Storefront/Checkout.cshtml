@@ -388,13 +388,19 @@
             }
         }
 
+        let gisState = { provinceCode: "", districtCode: "", wardCode: "", isFetching: false };
+
         async function buildProvinceSelect() {
             const provSelect = document.getElementById('selectProvince');
+            if (provSelect && provSelect.options.length > 1 && provSelect.selectedIndex > 0) {
+                return; // Prevent overwriting active selection if already populated
+            }
             provSelect.innerHTML = '<option value="">[ Loading Provinces... ]</option>';
             try {
                 const res = await fetch('/api/gis/provinces');
                 if (res.ok) {
                     const provinces = await res.json();
+                    const currentVal = provSelect.value || gisState.provinceCode;
                     provSelect.innerHTML = '<option value="">[ Select Province / Municipality ]</option>';
                     provinces.forEach(p => {
                         const opt = document.createElement('option');
@@ -402,6 +408,7 @@
                         opt.textContent = p.name;
                         provSelect.appendChild(opt);
                     });
+                    if (currentVal) provSelect.value = currentVal;
                 } else {
                     provSelect.innerHTML = '<option value="">[ API Routing Anomaly - Check Network ]</option>';
                 }
@@ -417,6 +424,10 @@
             const distSelect = document.getElementById('selectDistrict');
             const wardSelect = document.getElementById('selectWard');
 
+            gisState.provinceCode = provCode;
+            gisState.districtCode = "";
+            gisState.wardCode = "";
+
             distSelect.innerHTML = '<option value="">[ Select District ]</option>';
             wardSelect.innerHTML = '<option value="">[ Select Ward ]</option>';
             wardSelect.disabled = true;
@@ -426,8 +437,13 @@
                 return;
             }
 
-            const pName = provSelect.options[provSelect.selectedIndex].text;
-            geocodeLocation(pName + ", Vietnam", pName);
+            // Securely preserve province selection in DOM against re-rendering anomalies
+            provSelect.value = provCode;
+
+            const pName = provSelect.selectedIndex > 0 ? provSelect.options[provSelect.selectedIndex].text : "";
+            if (pName) {
+                geocodeLocation(pName + ", Vietnam", pName);
+            }
             updateFullAddress();
 
             distSelect.disabled = false;
@@ -446,6 +462,8 @@
                             distSelect.appendChild(opt);
                         });
                     }
+                    // Re-enforce province selection state
+                    if (gisState.provinceCode) provSelect.value = gisState.provinceCode;
                 }
             } catch (err) {
                 console.error("[GIS INTEGRATION FAULT] District stream breakdown:", err);
@@ -459,6 +477,9 @@
             const distCode = distSelect.value;
             const wardSelect = document.getElementById('selectWard');
 
+            gisState.districtCode = distCode;
+            gisState.wardCode = "";
+
             wardSelect.innerHTML = '<option value="">[ Select Ward ]</option>';
 
             if (!distCode) {
@@ -466,9 +487,15 @@
                 return;
             }
 
-            const pName = provSelect.options[provSelect.selectedIndex].text;
-            const dName = distSelect.options[distSelect.selectedIndex].text;
-            geocodeLocation(`${dName}, ${pName}, Vietnam`, dName);
+            // Ensure province and district remain selected
+            if (gisState.provinceCode) provSelect.value = gisState.provinceCode;
+            distSelect.value = distCode;
+
+            const pName = provSelect.selectedIndex > 0 ? provSelect.options[provSelect.selectedIndex].text : "";
+            const dName = distSelect.selectedIndex > 0 ? distSelect.options[distSelect.selectedIndex].text : "";
+            if (dName && pName) {
+                geocodeLocation(`${dName}, ${pName}, Vietnam`, dName);
+            }
             updateFullAddress();
 
             wardSelect.disabled = false;
@@ -487,6 +514,9 @@
                             wardSelect.appendChild(opt);
                         });
                     }
+                    // Re-enforce selections
+                    if (gisState.provinceCode) provSelect.value = gisState.provinceCode;
+                    if (gisState.districtCode) distSelect.value = gisState.districtCode;
                 }
             } catch (err) {
                 console.error("[GIS INTEGRATION FAULT] Ward stream breakdown:", err);
@@ -499,6 +529,8 @@
             const distSelect = document.getElementById('selectDistrict');
             const wardSelect = document.getElementById('selectWard');
             
+            gisState.wardCode = wardSelect.value;
+
             if (provSelect.selectedIndex > 0 && distSelect.selectedIndex > 0 && wardSelect.selectedIndex > 0) {
                 const pName = provSelect.options[provSelect.selectedIndex].text;
                 const dName = distSelect.options[distSelect.selectedIndex].text;

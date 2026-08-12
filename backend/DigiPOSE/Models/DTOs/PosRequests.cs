@@ -71,6 +71,10 @@ namespace DigiPOSE.Models.DTOs
         public string? BuyerAddress { get; set; }
         public string? BuyerEmail { get; set; }
         public string? Notes { get; set; }
+        public bool IsB2B { get; set; } = false;
+        public string? CompanyName { get; set; }
+        public string? BudgetCode { get; set; }
+        public string? BankAccount { get; set; }
     }
 
     // >>> [HIGH_EFFECT_UI_DTO]: Response gửi trả khi Checkout xong, cung cấp đầy đủ mã số chứng từ Retail và cập nhật tồn kho tức thì!
